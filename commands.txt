@@ -1,0 +1,4 @@
+mvn dependency:copy-dependencies
+mvn package
+mvn clean compile
+
