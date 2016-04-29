@@ -1,5 +1,7 @@
 package com.kytech.namjoshi.bo;
 
+import java.util.Date;
+
 public class Patient {
 
 	private long pid;
@@ -14,6 +16,7 @@ public class Patient {
 	private String drReference;
 	private String email;
 	private String birthday;
+	private Date birthDate;
 	private int age;
 	private String active;
 	private double previousBalance;
@@ -89,6 +92,19 @@ public class Patient {
 	 */
 	public void setCity(String city) {
 		this.city = city;
+	}
+	
+	/**
+	 * @return the birthdate
+	 */
+	public Date getBirthDate() {
+		return birthDate;
+	}
+	/**
+	 * @param birthdate the birthdate to set
+	 */
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
 	}
 	/**
 	 * @return the pin

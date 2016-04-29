@@ -14,6 +14,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -29,7 +31,7 @@ import javax.swing.SwingConstants;
 public final class Util {
 	private static final String baseDir = "/Users/tphadke/work/workspaceHCL/NamjoshiClinic";
 	private static final String imageDir = baseDir + "/images/";
-	
+	private static final SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
 	private Util(){
 	}
 	
@@ -111,8 +113,19 @@ public final class Util {
 		}
 	}
 	
+	public static String formatDate(Date exDate) {
+		return exDate != null ? sfd.format(exDate) : "";
+	}
+	
 	public static Font getSystemFont() {
 		return new Font("Lucida Grande", Font.BOLD, 24);
 	}
 	
+	public static int findAgeOfPatient(Date patientDob) {
+		Date now = new Date();
+		long timeBetween = now.getTime() - patientDob.getTime();
+		double yearsBetween = timeBetween / 3.156e+10;
+		int age = (int) Math.floor(yearsBetween);
+		return age;
+	}
 }

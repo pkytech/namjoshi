@@ -1,11 +1,10 @@
 package com.kytech.namjoshi;
 
-import javax.swing.JPanel;
-
-import java.awt.Color;
 import java.awt.BorderLayout;
-import java.awt.Container;
+import java.awt.Color;
 import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
 
 public class DailyWorkPanel extends JPanel {
 	private RecordSelector recordSelector = null;
@@ -25,5 +24,13 @@ public class DailyWorkPanel extends JPanel {
 
 	public void addExitListner(ActionListener exitListner) {
 		recordSelector.addExitListner(exitListner);
+	}
+
+	public RecordSelector getRecordSelector() {
+		return this.recordSelector;
+	}
+	
+	public DailyWork getDailyWork() {
+		return this.dailyWork;
 	}
 }

@@ -18,9 +18,10 @@ import com.kytech.namjoshi.util.Util;
 
 public class RecordSelector extends JPanel {
 	private JTextField txtPatientcodeselector;
-	private JTextField txtPatientname;
+	private JTextField txtPatientName;
 	private JTextField txtDues;
 	private JButton btnExit = null;
+	private final PatientSearchPanel searchPanel;
 	public RecordSelector() {
 		setForeground(Color.WHITE);
 		setBackground(Color.BLUE);
@@ -30,7 +31,7 @@ public class RecordSelector extends JPanel {
 		buttonsPanel.setBackground(Color.BLUE);
 		add(buttonsPanel, BorderLayout.SOUTH);
 		
-		final PatientSearchPanel searchPanel = new PatientSearchPanel();
+		searchPanel = new PatientSearchPanel();
 		final JButton btnSearch = new JButton("Search");
 		btnSearch.setFont(Util.getSystemFont());
 		buttonsPanel.add(btnSearch);
@@ -38,16 +39,24 @@ public class RecordSelector extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("SearchButton");
 				Window parentWindow = SwingUtilities.windowForComponent(btnSearch);
 				final JDialog dialog = new JDialog(parentWindow);
 				dialog.setLocationRelativeTo(btnSearch);
-				dialog.setSize(600, 400);
+				dialog.setSize(800, 550);
 				dialog.getContentPane().add(searchPanel);
 				searchPanel.addExitListner(new ActionListener() {
 					
 					@Override
 					public void actionPerformed(ActionEvent e) {
+						dialog.dispose();
+					}
+				});
+				searchPanel.addSelectListner(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						dialog.setVisible(false);
+						NamjoshiUIManager.getUIManager().loadSearchedPatient();
 						dialog.dispose();
 					}
 				});
@@ -64,10 +73,27 @@ public class RecordSelector extends JPanel {
 		JButton btnNew = new JButton("New");
 		btnNew.setFont(Util.getSystemFont());
 		buttonsPanel.add(btnNew);
+		btnNew.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().clearPatientData();
+				NamjoshiUIManager.getUIManager().disablePatientCode();
+				NamjoshiUIManager.getUIManager().selectDetailsTab();
+			}
+		});
 		
 		JButton btnClear = new JButton("Clear");
 		btnClear.setFont(Util.getSystemFont());
 		buttonsPanel.add(btnClear);
+		btnClear.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().clearPatientData();
+				
+			}
+		});
 		
 		btnExit = new JButton("Exit");
 		btnExit.setFont(Util.getSystemFont());
@@ -85,9 +111,19 @@ public class RecordSelector extends JPanel {
 		txtPatientcodeselector = new JTextField();
 		txtPatientcodeselector.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				NamjoshiUIManager.getUIManager().showInformationMessage("Enter clicked");
+				String text = txtPatientcodeselector.getText();
+				//NamjoshiUIManager.getUIManager().showInformationMessage("Enter clicked");
+				try {
+					Integer.parseInt(text);
+				} catch (NumberFormatException nfe) {
+					NamjoshiUIManager.getUIManager().showErrorMessage("Invalid Patient code");
+					txtPatientcodeselector.setText("");
+					return;
+				}
+				NamjoshiUIManager.getUIManager().loadPatient(text);
 			}
 		});
+		
 		txtPatientcodeselector.setFont(Util.getSystemFont());
 		panel.add(txtPatientcodeselector);
 		txtPatientcodeselector.setColumns(10);
@@ -97,11 +133,11 @@ public class RecordSelector extends JPanel {
 		lblName.setForeground(Color.WHITE);
 		panel.add(lblName);
 		
-		txtPatientname = new JTextField();
-		txtPatientname.setEditable(false);
-		txtPatientname.setFont(Util.getSystemFont());
-		panel.add(txtPatientname);
-		txtPatientname.setColumns(10);
+		txtPatientName = new JTextField();
+		txtPatientName.setEditable(false);
+		txtPatientName.setFont(Util.getSystemFont());
+		panel.add(txtPatientName);
+		txtPatientName.setColumns(20);
 		
 		JLabel lblDues = new JLabel("Dues");
 		lblDues.setFont(Util.getSystemFont());
@@ -122,4 +158,27 @@ public class RecordSelector extends JPanel {
 		btnExit.addActionListener(exitListner);
 	}
 
+	public void setPatientName(String name) {
+		txtPatientName.setText(name);
+	}
+	
+	public void setPatientCode(String code) {
+		txtPatientcodeselector.setText(code);
+	}
+	
+	public void enablePatientCode() {
+		txtPatientcodeselector.setEditable(true);
+	}
+	
+	public void disablePatientCode() {
+		txtPatientcodeselector.setEditable(false);
+	}
+	
+	public void setOutstandingAmount(double amount) {
+		txtDues.setText(String.valueOf(amount));
+	}
+
+	public PatientSearchPanel getSearchPanel() {
+		return this.searchPanel;
+	}
 }

@@ -25,7 +25,6 @@ import javax.swing.SwingConstants;
 
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.util.Util;
-import javax.swing.JLabel;
 
 /**
  * @author tphadke
@@ -141,5 +140,14 @@ public class NamjoshiClinic extends JFrame {
 			dailyWorkPanel.repaint();
 			setVisible(true);
 		}
+	}
+
+	/**
+	 * Returns Daily work panel.
+	 *  
+	 * @return
+	 */
+	public DailyWorkPanel getDailyPanel() {
+		return this.dailyWorkPanel;
 	}
 }

@@ -4,7 +4,6 @@
 package com.kytech.namjoshi.standalone;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +15,6 @@ import java.util.Map;
 
 import com.kytech.namjoshi.bo.Patient;
 import com.kytech.namjoshi.util.DBUtil;
-import com.kytech.namjoshi.util.NamjoshiConfigurator;
 
 /**
  * @author tphadke
@@ -30,14 +28,9 @@ public class CorrectPatientMaster {
 	 */
 	public static void main(String[] args) {
 		try {
-			NamjoshiConfigurator config = NamjoshiConfigurator.getInstance(); 
-			String driverName = config.getKeyValue(NamjoshiConfigurator.JDBC_CLASSNAME);
-			String jdbcUrl = config.getKeyValue(NamjoshiConfigurator.JDBC_DB_URL);
-			String userName = config.getKeyValue(NamjoshiConfigurator.DB_USER_NAME);
-			String password = config.getKeyValue(NamjoshiConfigurator.DB_PASSWORD);
 			
-			Class.forName(driverName);
-			try (Connection con = DriverManager.getConnection(jdbcUrl, userName, password)) {
+			
+			try (Connection con = DBUtil.getConnection(DBUtil.OLTP_POOL_NAME)) {
 				System.out.println("Connection DONE");
 				try (Statement stmt = con.createStatement()) {
 					try (ResultSet rs = stmt.executeQuery(SELECT_DUPLICATE)) {

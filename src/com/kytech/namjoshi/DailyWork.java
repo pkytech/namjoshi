@@ -11,15 +11,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,14 +21,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 
-import org.jdatepicker.impl.JDatePanelImpl;
-import org.jdatepicker.impl.JDatePickerImpl;
-import org.jdatepicker.impl.UtilDateModel;
-
+import com.kytech.namjoshi.bo.Prescription;
+import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.table.AdviceHistoryTableModel;
 import com.kytech.namjoshi.util.Util;
 
@@ -51,11 +46,16 @@ public class DailyWork extends JPanel {
 	private JTextField txtReference;
 	private JTable historyTable;
 	private JTextField txtFeeCode;
+	private JTextArea txtSymtom;
+	private JTextArea txtMedicine;
+	private JTextArea txtAdvice;
+	private JTabbedPane tabbedPane;
+	private AdviceHistoryTableModel historyTableModel = new AdviceHistoryTableModel();
 	public DailyWork() {
 		setBackground(Color.BLUE);
 		setLayout(new BorderLayout(0, 0));
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setFont(new Font("Lucida Grande", Font.BOLD, 20));
 		tabbedPane.setBackground(Color.BLUE);
 		tabbedPane.setBorder(new LineBorder(Color.WHITE));
@@ -66,13 +66,25 @@ public class DailyWork extends JPanel {
 		tabbedPane.addTab("History", null, historyPanel, null);
 		historyPanel.setLayout(new BorderLayout(0, 5));
 		
-		historyTable = new JTable(new AdviceHistoryTableModel());
+		historyTable = new JTable(historyTableModel);
+		historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane adviceTablescrollPane = new JScrollPane(historyTable);
 		historyTable.setFont(Util.getSystemFont());
 		historyTable.setRowHeight(25);
 		historyPanel.add(adviceTablescrollPane, BorderLayout.CENTER);
 		JTableHeader header = historyTable.getTableHeader();
 		header.setFont(Util.getSystemFont());
+		historyTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				int selectedRow = historyTable.getSelectedRow(); 
+				if (selectedRow > -1) {
+					Prescription pre = historyTableModel.getRows().get(selectedRow);
+					NamjoshiUIManager.getUIManager().loadPrescription(pre);
+				}
+			}
+		});
 		
 		historyTable.setFillsViewportHeight(true);
 		historyTable.getColumnModel().getColumn(0).setPreferredWidth(30);
@@ -110,7 +122,7 @@ public class DailyWork extends JPanel {
 		gbc_lblSymtom.gridy = 0;
 		advice.add(lblSymtom, gbc_lblSymtom);
 		
-		JTextArea txtSymtom = new JTextArea();
+		txtSymtom = new JTextArea();
 		JScrollPane symtomScrollPane = new JScrollPane();
 		symtomScrollPane.setViewportView(txtSymtom);
 		txtSymtom.setLineWrap(true);
@@ -132,7 +144,7 @@ public class DailyWork extends JPanel {
 		gbc_lblMedicine.gridy = 1;
 		advice.add(lblMedicine, gbc_lblMedicine);
 		
-		JTextArea txtMedicine = new JTextArea();
+		txtMedicine = new JTextArea();
 		JScrollPane medicineScrollPane = new JScrollPane();
 		medicineScrollPane.setViewportView(txtMedicine);
 		txtMedicine.setLineWrap(true);
@@ -156,7 +168,7 @@ public class DailyWork extends JPanel {
 		gbc_lblAdvice.gridy = 2;
 		advice.add(lblAdvice, gbc_lblAdvice);
 		
-		JTextArea txtAdvice = new JTextArea();
+		txtAdvice = new JTextArea();
 		JScrollPane adviceScrollPane = new JScrollPane();
 		adviceScrollPane.setViewportView(txtAdvice);
 		txtAdvice.setLineWrap(true);
@@ -246,31 +258,6 @@ public class DailyWork extends JPanel {
 		patientDetailsParent.add(patientDetails, BorderLayout.NORTH);
 		
 		tabbedPane.addTab("Deatils", null, patientDetailsParent, null);
-		
-		
-		JLabel lblCode = new JLabel("Code   ");
-		lblCode.setHorizontalAlignment(SwingConstants.LEFT);
-		lblCode.setFont(Util.getSystemFont());
-		lblCode.setForeground(Color.WHITE);
-		patientDetails.add(lblCode);
-		
-		txtCode = new JTextField();
-		txtCode.setFont(Util.getSystemFont());
-		txtCode.setHorizontalAlignment(SwingConstants.LEFT);
-		patientDetails.add(txtCode);
-		txtCode.setColumns(10);
-		
-		JLabel label = new JLabel("");
-		patientDetails.add(label);
-		
-		JLabel label_1 = new JLabel("");
-		patientDetails.add(label_1);
-		
-		JLabel label_2 = new JLabel("");
-		patientDetails.add(label_2);
-		
-		JLabel label_3 = new JLabel("");
-		patientDetails.add(label_3);
 		
 		JLabel lblFirstName = new JLabel("First Name    ");
 		lblFirstName.setHorizontalAlignment(SwingConstants.LEFT);
@@ -383,6 +370,7 @@ public class DailyWork extends JPanel {
 		lblAge.setFont(Util.getSystemFont());
 		
 		txtAge = new JTextField();
+		txtAge.setEnabled(false);
 		txtAge.setFont(Util.getSystemFont());
 		patientDetails.add(txtAge);
 		txtAge.setColumns(10);
@@ -396,6 +384,118 @@ public class DailyWork extends JPanel {
 		txtReference.setFont(Util.getSystemFont());
 		patientDetails.add(txtReference);
 		txtAge.setColumns(10);
+		
+		JButton btnSaveUpdate = new JButton("Save/Update");
+		patientDetails.add(btnSaveUpdate);
+		btnSaveUpdate.setFont(Util.getSystemFont());
 	}
 
+	public void setFirstName(String name) {
+		firstName.setText(name);
+	}
+	
+	public String getFirstName() {
+		return firstName.getText();
+	}
+	
+	public void setMiddleName(String name) {
+		txtMiddle.setText(name);
+	}
+	
+	public String getMiddleName() {
+		return txtMiddle.getText();
+	}
+	
+	public void setLastName(String name) {
+		txtLast.setText(name);
+	}
+	
+	public String getLastName() {
+		return txtLast.getText();
+	}
+	
+	public void setAddress(String address) {
+		txtAddress.setText(address);
+	}
+	
+	public String getAddress() {
+		return txtAddress.getText();
+	}
+	
+	public void setTelephone(String tele) {
+		txtTelephone.setText(tele);
+	}
+	
+	public String getTelephone() {
+		return this.txtTelephone.getText();
+	}
+	
+	public void setMobile(String mobile) {
+		txtMobile.setText(mobile);
+	}
+	
+	public String getMobile() {
+		return this.txtMobile.getText();
+	}
+	
+	public void setBirthDay(String date) {
+		txtDob.setText(date);
+	}
+	
+	public String getBirthDay() {
+		return this.txtDob.getText();
+	}
+	
+	public void setAge(String age) {
+		txtAge.setText(age);
+	}
+	
+	public void setReference(String ref) {
+		txtReference.setText(ref);
+	}
+	
+	public String getReference() {
+		return this.txtReference.getText();
+	}
+	
+	public void setHistoryTableModelData(List<Prescription> rows) {
+		if (rows == null) {
+			return;
+		}
+		historyTableModel.setRows(rows);
+		historyTableModel.fireTableDataChanged();
+		historyTable.repaint();
+	}
+	
+	public String getSymtom() {
+		return txtSymtom.getText();
+	}
+	
+	public void setSymtom(String symtom) {
+		txtSymtom.setText(symtom);
+	}
+	
+	public String getPrescription() {
+		return txtMedicine.getText();
+	}
+	
+	public void setPrescription(String prescription) {
+		txtMedicine.setText(prescription);
+	}
+	
+	public String getAdvice() {
+		return txtAdvice.getText();
+	}
+	
+	public void setAdvice(String advice) {
+		txtAdvice.setText(advice);
+	}
+	
+	public void setSelectedTab(int index) {
+		int tabCount = tabbedPane.getTabCount();
+		if (tabCount < index) {
+			return;
+		}
+		tabbedPane.setSelectedIndex(index);
+	}
 }
