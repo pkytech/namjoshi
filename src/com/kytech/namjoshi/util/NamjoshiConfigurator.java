@@ -9,6 +9,8 @@ public final class NamjoshiConfigurator {
 	public static final String JDBC_CLASSNAME = "namjoshi.jdbc.classname";
 	public static final String DB_USER_NAME = "namjoshi.jdbc.userid";
 	public static final String DB_PASSWORD = "namjoshi.jdbc.password";
+	public static final String BIIL_DIR = "namjoshi.biils.dir";
+	public static final String BIIL_PRINT_EXEC = "namjoshi.biils.print";
 	private static NamjoshiConfigurator configurator = null;
 	private Properties configValues = null;
 	private NamjoshiConfigurator() {

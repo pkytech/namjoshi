@@ -72,6 +72,10 @@ public class AdviceHistoryTableModel extends AbstractTableModel {
 	public String getColumnName(int col) {
         return columnNames[col];
     }
+
+	public List<Prescription> getHistoryData() {
+		return this.rows;
+	}
 	
 	
 }

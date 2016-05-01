@@ -165,6 +165,10 @@ public class RecordSelector extends JPanel {
 	public void setPatientCode(String code) {
 		txtPatientcodeselector.setText(code);
 	}
+
+	public String getPatientCode() {
+		return txtPatientcodeselector.getText();
+	}
 	
 	public void enablePatientCode() {
 		txtPatientcodeselector.setEditable(true);

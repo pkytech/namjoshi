@@ -142,4 +142,6 @@ go
 update Patient_Master set BirthDate='01/01/1965 00:00:00' where Pid=26264
 go
 
+ALTER TABLE Prescription_Transaction add DEFAULT -1 for Pre_id
+GO
 

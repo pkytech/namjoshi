@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -32,6 +33,7 @@ import com.kytech.namjoshi.bo.Prescription;
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.table.AdviceHistoryTableModel;
 import com.kytech.namjoshi.util.Util;
+import com.toedter.calendar.JDateChooser;
 
 public class DailyWork extends JPanel {
 	private JTextField txtCode;
@@ -41,7 +43,7 @@ public class DailyWork extends JPanel {
 	private JTextField txtAddress;
 	private JTextField txtTelephone;
 	private JTextField txtMobile;
-	private JTextField txtDob;
+	//private JTextField txtDob;
 	private JTextField txtAge;
 	private JTextField txtReference;
 	private JTable historyTable;
@@ -50,6 +52,7 @@ public class DailyWork extends JPanel {
 	private JTextArea txtMedicine;
 	private JTextArea txtAdvice;
 	private JTabbedPane tabbedPane;
+	private JDateChooser txtDob;
 	private AdviceHistoryTableModel historyTableModel = new AdviceHistoryTableModel();
 	public DailyWork() {
 		setBackground(Color.BLUE);
@@ -185,6 +188,7 @@ public class DailyWork extends JPanel {
 		btnSave.setFont(Util.getSystemFont());
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().insertPrescription();
 			}
 		});
 		
@@ -269,6 +273,7 @@ public class DailyWork extends JPanel {
 		firstName.setFont(Util.getSystemFont());
 		patientDetails.add(firstName);
 		firstName.setColumns(10);
+		Util.addUpperCaseDocumentFilter(firstName);
 		
 		JLabel lblMiddle = new JLabel("Middle    ");
 		lblMiddle.setHorizontalAlignment(SwingConstants.LEFT);
@@ -280,6 +285,7 @@ public class DailyWork extends JPanel {
 		txtMiddle.setFont(Util.getSystemFont());
 		patientDetails.add(txtMiddle);
 		txtMiddle.setColumns(10);
+		Util.addUpperCaseDocumentFilter(txtMiddle);
 		
 		JLabel lblLast = new JLabel("Last    ");
 		lblLast.setHorizontalAlignment(SwingConstants.LEFT);
@@ -291,6 +297,7 @@ public class DailyWork extends JPanel {
 		txtLast.setFont(Util.getSystemFont());
 		patientDetails.add(txtLast);
 		txtLast.setColumns(10);
+		Util.addUpperCaseDocumentFilter(txtLast);
 		
 		JLabel lblAddress = new JLabel("Address");
 		lblAddress.setFont(Util.getSystemFont());
@@ -301,6 +308,7 @@ public class DailyWork extends JPanel {
 		txtAddress.setFont(Util.getSystemFont());
 		patientDetails.add(txtAddress);
 		txtAddress.setColumns(10);
+		Util.addUpperCaseDocumentFilter(txtAddress);
 		
 		JLabel lblTelephone = new JLabel("Telephone");
 		lblTelephone.setForeground(Color.WHITE);
@@ -327,42 +335,10 @@ public class DailyWork extends JPanel {
 		lblDob.setForeground(Color.WHITE);
 		patientDetails.add(lblDob);
 		
-		txtDob = new JTextField();
+		txtDob = new JDateChooser(null, "dd/MM/yyyy");
+		txtDob.setFont(Util.getSystemFont());
 		txtDob.setFont(Util.getSystemFont());
 		patientDetails.add(txtDob);
-		txtDob.setColumns(10);
-		/*UtilDateModel model = new UtilDateModel();
-		Properties props = new Properties();
-		props.put("key", "value");
-		props.put("text.today", "Today");
-		props.put("text.month", "Month");
-		props.put("text.year", "Year");
-		props.put("text.clear", "Clear");
-		
-		JDatePanelImpl datePanel = new JDatePanelImpl(model, props);
-		SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
-		AbstractFormatter dateFormatter = new AbstractFormatter() {
-			private SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
-			@Override
-			public String valueToString(Object date) throws ParseException {
-				String result = null;
-				if (date instanceof Date) {
-					result = sfd.format(date);
-				}
-				
-				return result;
-			}
-			
-			@Override
-			public Object stringToValue(String source) throws ParseException {
-				Date date = null;
-				date = sfd.parse(source);
-				return date;
-			}
-		};
-
-		JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, dateFormatter);
-		patientDetails.add(datePicker);*/
 		
 		JLabel lblAge = new JLabel("Age");
 		lblAge.setForeground(Color.WHITE);
@@ -388,6 +364,13 @@ public class DailyWork extends JPanel {
 		JButton btnSaveUpdate = new JButton("Save/Update");
 		patientDetails.add(btnSaveUpdate);
 		btnSaveUpdate.setFont(Util.getSystemFont());
+		btnSaveUpdate.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().saveOrUpdatePatientDetails();
+			}
+		});
 	}
 
 	public void setFirstName(String name) {
@@ -438,12 +421,12 @@ public class DailyWork extends JPanel {
 		return this.txtMobile.getText();
 	}
 	
-	public void setBirthDay(String date) {
-		txtDob.setText(date);
+	public void setBirthDate(Date date) {
+		txtDob.setDate(date);
 	}
-	
-	public String getBirthDay() {
-		return this.txtDob.getText();
+
+	public Date getBirthDate() {
+		return this.txtDob.getDate();
 	}
 	
 	public void setAge(String age) {
@@ -463,6 +446,12 @@ public class DailyWork extends JPanel {
 			return;
 		}
 		historyTableModel.setRows(rows);
+		historyTableModel.fireTableDataChanged();
+		historyTable.repaint();
+	}
+	
+	public void addHistory(Prescription pre) {
+		historyTableModel.getHistoryData().add(0, pre);
 		historyTableModel.fireTableDataChanged();
 		historyTable.repaint();
 	}
@@ -497,5 +486,13 @@ public class DailyWork extends JPanel {
 			return;
 		}
 		tabbedPane.setSelectedIndex(index);
+	}
+
+	public String getFeeCode() {
+		return txtFeeCode.getText();
+	}
+	
+	public void setFeeCode(String feeCode) {
+		txtFeeCode.setText(feeCode);
 	}
 }

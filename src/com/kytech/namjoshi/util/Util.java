@@ -14,6 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -22,7 +25,12 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.DocumentFilter;
+
+import com.kytech.namjoshi.manager.NamjoshiUIManager;
 
 /**
  * @author tphadke
@@ -32,6 +40,7 @@ public final class Util {
 	private static final String baseDir = "/Users/tphadke/work/workspaceHCL/NamjoshiClinic";
 	private static final String imageDir = baseDir + "/images/";
 	private static final SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
+	private static final String PRINT_DEVIDER = "-----------------------------------";
 	private Util(){
 	}
 	
@@ -127,5 +136,44 @@ public final class Util {
 		double yearsBetween = timeBetween / 3.156e+10;
 		int age = (int) Math.floor(yearsBetween);
 		return age;
+	}
+
+	public static void addUpperCaseDocumentFilter(JTextField textField) {
+		DocumentFilter filter = new UppercaseDocumentFilter();
+		((AbstractDocument) textField.getDocument()).setDocumentFilter(filter);
+	}
+
+	public static void printPrescription(String patientCode, String name,
+			String prescription, String feeCode) {
+		StringBuffer sbOut = new StringBuffer();
+		sbOut.append(patientCode).append(" - ").append(name).append("\n").append(PRINT_DEVIDER).append("\n");
+		sbOut.append(prescription).append("\t\t").append(feeCode).append("\n");
+		sbOut.append(PRINT_DEVIDER).append("\n");
+		
+		String pathToBills = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.BIIL_DIR);
+		String billsPrint = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.BIIL_PRINT_EXEC);
+		if (pathToBills == null || pathToBills.trim().length() == 0) {
+			NamjoshiUIManager.getUIManager().showErrorMessage("No directory configured for biils");
+			return;
+		}
+		File fileDir = new File(pathToBills);
+		if (fileDir.exists()) {
+			fileDir.mkdirs();
+		}
+		File billFile = new File(fileDir, "bills.txt");
+		if (billFile.exists()) {
+			billFile.delete();
+		}
+		Process process;
+		try {
+			Files.write(Paths.get(billFile.toURI()), sbOut.toString().getBytes("utf-8"), StandardOpenOption.CREATE_NEW);
+			process = Runtime.getRuntime().exec(pathToBills+File.separator+billsPrint, null, new File(pathToBills));
+			int result = process.waitFor();
+			System.out.println("Result : " + result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

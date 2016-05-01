@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,12 +23,18 @@ import com.kytech.namjoshi.bo.Patient;
 import com.kytech.namjoshi.bo.Prescription;
 
 public final class DBUtil {
+	private static final String SELECT_MAX_PATIENT_ID = "select max(pid) as Pid from Patient_Master";
 	private static final String DBCP2_POOLING_DRIVER_CLASS = "org.apache.commons.dbcp2.PoolingDriver";
 	private static final String JDBC_APACHE_COMMONS_DBCP = "jdbc:apache:commons:dbcp:";
 	public static final String OLTP_POOL_NAME = "oltp";
 	public static final String ARCVIVE_POOL_NAME = "archive";
 	public static final String LOAD_PATIENT = "select * from Patient_Master where Pid=?";
 	public static final String LOAD_PRESCRIPTION = "select * from Prescription_Transaction where P_id=? order by Ex_date desc";
+	private static final String SEARCH_PATIENT = "select * from Patient_Master where ";
+	private static final String INSERT_PATIENT_MASTER = "insert into Patient_Master (Pid, PFName, PMName, PLName, Address, TPhone, MPhone, DrReference, birth_date) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	private static final String UPDATE_PATIENT = "update Patient_Master set PFName=?, PMName=?, PLName=?, Address=?, TPhone=?, MPhone=?, DrReference=?, birth_date=? where Pid=?";
+	private static final String SELECT_MAX_PRESCRIPTION_ID = "select max(Pre_id) from Prescription_Transaction";
+	private static final String INSERT_PRESCRIPTION = "insert into Prescription_Transaction(Pre_id, P_id, sym_nm, Med_nm, Adv_nm, Ex_date, Fee_Code) values (?, ?, ?, ?, ?, ?, ?)";
 	private DBUtil(){
 	}
 
@@ -217,7 +224,7 @@ public final class DBUtil {
 		
 		return pre;
 	}
-	private static final String SEARCH_PATIENT = "select * from Patient_Master where ";
+	
 	public static List<Patient> searchPatients(String firstName,
 			String middleName, String lastName) {
 		List<Patient> patients = new ArrayList<Patient>();
@@ -253,5 +260,119 @@ public final class DBUtil {
 		}
 		
 		return patients;
+	}
+
+	public static long createPatient(String firstName, String middleName,
+			String lastName, String address, String telephone, String mobile,
+			String reference, Date dob) {
+
+		long maxPatientId = -1;
+		try (Connection con = getConnection(OLTP_POOL_NAME)) {
+			maxPatientId = getMaxPatientId(con);
+			
+			try (PreparedStatement pstmt = con.prepareStatement(INSERT_PATIENT_MASTER)) {
+				pstmt.setLong(1, ++maxPatientId);
+				pstmt.setString(2, firstName);
+				pstmt.setString(3, middleName);
+				pstmt.setString(4, lastName);
+				pstmt.setString(5, address);
+				pstmt.setString(6, telephone);
+				pstmt.setString(7, mobile);
+				pstmt.setString(8, reference);
+				pstmt.setDate(9, dob != null ? new java.sql.Date(dob.getTime()) : null);
+				pstmt.execute();
+			}
+		} catch(SQLException e) {
+			e.printStackTrace(System.err);
+		}
+		return maxPatientId;
+	}
+
+	/**
+	 * Returns maximum Pid from Patient_Master.
+	 * 
+	 * @param con
+	 * @return
+	 * @throws SQLException
+	 */
+	private static long getMaxPatientId(Connection con) throws SQLException {
+		long patientId = -1;
+		try (Statement stmt = con.createStatement()) {
+			try (ResultSet rs = stmt.executeQuery(SELECT_MAX_PATIENT_ID)) {
+				if (rs.next()) {
+					patientId = rs.getLong(1);
+				} else {
+					patientId = 1;
+				}
+			}
+		}
+		return patientId;
+	}
+
+	public static void updatePatient(String patientCode, String firstName,
+			String middleName, String lastName, String address,
+			String telephone, String mobile, String reference, Date dob) {
+
+		try (Connection con = getConnection(OLTP_POOL_NAME)) {
+			try (PreparedStatement stmt = con.prepareStatement(UPDATE_PATIENT)) {
+				stmt.setString(1, firstName);
+				stmt.setString(2, middleName);
+				stmt.setString(3, lastName);
+				stmt.setString(4, address);
+				stmt.setString(5, telephone);
+				stmt.setString(6, mobile);
+				stmt.setString(7, reference);
+				stmt.setDate(8, dob != null ? new java.sql.Date(dob.getTime()) : null);
+				stmt.setLong(9, Long.parseLong(patientCode));
+				stmt.executeUpdate();
+			}
+		} catch(SQLException e) {
+			e.printStackTrace(System.err);
+		}
+	}
+
+	public static boolean insertPrescription(long patientId, String symtom, String prescription,
+			String advice, String feeCode) {
+
+		boolean recordInserted = false;
+		try (Connection con = getConnection(OLTP_POOL_NAME)) {
+			long prescriptionId = getMaxPrescriptionId(con);
+			
+			try (PreparedStatement stmt = con.prepareStatement(INSERT_PRESCRIPTION)) {
+				stmt.setLong(1, ++prescriptionId);
+				stmt.setLong(2, patientId);
+				stmt.setString(3, symtom);
+				stmt.setString(4, prescription);
+				stmt.setString(5, advice);
+				stmt.setDate(6, new java.sql.Date(new Date().getTime()));
+				stmt.setString(7, feeCode);
+				stmt.execute();
+				recordInserted = true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(System.err);
+		}
+		return recordInserted;
+	}
+	
+	/**
+	 * Returns maximum Pid from Patient_Master.
+	 * 
+	 * @param con
+	 * @return
+	 * @throws SQLException
+	 */
+	private static long getMaxPrescriptionId(Connection con) throws SQLException {
+		long prescriptionId = -1;
+		try (Statement stmt = con.createStatement()) {
+			try (ResultSet rs = stmt.executeQuery(SELECT_MAX_PRESCRIPTION_ID)) {
+				if (rs.next()) {
+					prescriptionId = rs.getLong(1);
+				} else {
+					prescriptionId = 1;
+				}
+			}
+		}
+		return prescriptionId;
 	}
 }
