@@ -9,8 +9,10 @@ public final class NamjoshiConfigurator {
 	public static final String JDBC_CLASSNAME = "namjoshi.jdbc.classname";
 	public static final String DB_USER_NAME = "namjoshi.jdbc.userid";
 	public static final String DB_PASSWORD = "namjoshi.jdbc.password";
-	public static final String BIIL_DIR = "namjoshi.biils.dir";
-	public static final String BIIL_PRINT_EXEC = "namjoshi.biils.print";
+	public static final String BIIL_DIR = "namjoshi.bills.dir";
+	public static final String BIIL_PRINT_EXEC = "namjoshi.bills.print";
+	public static final String PATIENT_PROFILE_PIC_DIR = "namjoshi.profilePic.dir";
+	public static final String PATIENT_ATTACH_DIR = "namjoshi.attachment.dir";
 	private static NamjoshiConfigurator configurator = null;
 	private Properties configValues = null;
 	private NamjoshiConfigurator() {

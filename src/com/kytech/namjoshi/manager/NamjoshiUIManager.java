@@ -1,11 +1,15 @@
 package com.kytech.namjoshi.manager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import com.kytech.namjoshi.DailyWork;
 import com.kytech.namjoshi.DailyWorkPanel;
@@ -20,9 +24,12 @@ import com.kytech.namjoshi.util.Util;
 public final class NamjoshiUIManager {
 
 	private JFrame parentFrame;
+	private JFileChooser fc;
+	private boolean isAttachmentImagesFound = false;
 	public static final NamjoshiUIManager uiManager = new NamjoshiUIManager();
 	
 	private NamjoshiUIManager() {
+		fc = new JFileChooser();
 	}
 	
 	public static final NamjoshiUIManager getUIManager() {
@@ -90,10 +97,21 @@ public final class NamjoshiUIManager {
 		}
 		
 		//Load Images
-		
+		JPanel attachIconPanel = dailyWork.getAttachmentIconPanel();
+		attachIconPanel.removeAll();
+		attachIconPanel.repaint();
+		JPanel attachImagePanel = dailyWork.getAttachmentImagePanel();
+		Util.emptyAttachmentImage(dailyWork.getAttachmentImageLabel());
+		attachImagePanel.repaint();
+		Util.loadAttachmentIcons(attachIconPanel, attachImagePanel, patientNumber);
+
 		//load Photo
+		Util.loadIconImage(patientNumber, dailyWork.getProfilePictureLabel(), 200, 200);
 		
-		
+		//Enable profile buttons
+		enableUploadAttachmentButton();
+		enableUploadProfilePicture();
+		enableSaveProfileButton();
 	}
 	
 	public void clearPatientData() {
@@ -123,6 +141,23 @@ public final class NamjoshiUIManager {
 		dailyWork.setAdvice("");
 		dailyWork.setFeeCode("");
 		dailyWork.setSelectedTab(0);
+		
+		//Reset profile picture
+		Util.loadIconImage(dailyWork.getProfilePictureLabel(), 200, 200);
+		
+		//Reset attachments
+		JPanel attachmentIconPanel = dailyWork.getAttachmentIconPanel();
+		attachmentIconPanel.removeAll();
+		attachmentIconPanel.repaint();
+		JPanel attachmentImagePanel = dailyWork.getAttachmentImagePanel();
+		attachmentImagePanel.repaint();
+		Util.emptyAttachmentImage(dailyWork.getAttachmentImageLabel());
+		Util.loadEmptyAttachmentIcon(attachmentIconPanel);
+		
+		disableUploadAttachmentButton();
+		disableUploadProfilePicture();
+		disableSaveProfileButton();
+		resetAttachmentImageFound();
 	}
 
 	public void disablePatientCode() {
@@ -136,24 +171,14 @@ public final class NamjoshiUIManager {
 	}
 	
 	public void loadPrescription(Prescription pre) {
-		NamjoshiClinic clinic = null;
-		if (parentFrame instanceof NamjoshiClinic) {
-			clinic = (NamjoshiClinic)parentFrame;
-		}
-		DailyWorkPanel dailyWorkPanel = clinic.getDailyPanel();
-		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
+		DailyWork dailyWork = getDailyWork();
 		dailyWork.setSymtom(pre.getSymtoms());
 		dailyWork.setPrescription(pre.getPrescription());
 		dailyWork.setAdvice(pre.getAdvice());
 	}
 
 	public void selectDetailsTab() {
-		NamjoshiClinic clinic = null;
-		if (parentFrame instanceof NamjoshiClinic) {
-			clinic = (NamjoshiClinic)parentFrame;
-		}
-		DailyWorkPanel dailyWorkPanel = clinic.getDailyPanel();
-		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
+		DailyWork dailyWork = getDailyWork();
 		dailyWork.setSelectedTab(2);
 	}
 
@@ -222,13 +247,8 @@ public final class NamjoshiUIManager {
 	}
 
 	public void saveOrUpdatePatientDetails() {
-		NamjoshiClinic clinic = null;
-		if (parentFrame instanceof NamjoshiClinic) {
-			clinic = (NamjoshiClinic)parentFrame;
-		}
-		DailyWorkPanel dailyWorkPanel = clinic.getDailyPanel();
-		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
-		RecordSelector recSel = dailyWorkPanel.getRecordSelector();
+		DailyWork dailyWork = getDailyWork();
+		RecordSelector recSel = getRecordSelector();
 		
 		String firstName = dailyWork.getFirstName();
 		if (firstName == null || firstName.trim().length() <= 0) {
@@ -270,13 +290,8 @@ public final class NamjoshiUIManager {
 	}
 
 	public void insertPrescription() {
-		NamjoshiClinic clinic = null;
-		if (parentFrame instanceof NamjoshiClinic) {
-			clinic = (NamjoshiClinic)parentFrame;
-		}
-		DailyWorkPanel dailyWorkPanel = clinic.getDailyPanel();
-		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
-		RecordSelector recSel = dailyWorkPanel.getRecordSelector();
+		DailyWork dailyWork = getDailyWork();
+		RecordSelector recSel = getRecordSelector();
 		
 		String patientCode = recSel.getPatientCode();
 		String firstName = dailyWork.getFirstName();
@@ -320,5 +335,137 @@ public final class NamjoshiUIManager {
 		dailyWork.setPrescription("");
 		dailyWork.setAdvice("");
 		dailyWork.setFeeCode("");
+	}
+	
+	public void chooseProfilePicture() {
+		DailyWork dailyWork = getDailyWork();
+		RecordSelector recSel = getRecordSelector();
+		String patientCode = recSel.getPatientCode();
+		
+		if (patientCode == null || patientCode.trim().length() == 0) {
+			showErrorMessage("Please select patient before uploading profile picture");
+			return;
+		}
+		
+		int returnVal = fc.showSaveDialog(parentFrame);
+		
+		File selectedFile = null;
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			selectedFile = fc.getSelectedFile();
+			String name = selectedFile.getName().toLowerCase();
+			if (!(name.endsWith(".jpg") || name.endsWith(".jpeg"))) {
+				showErrorMessage("Application accept only JPG files. Choose different file");
+				return;
+			}
+			double fileSizeInMb = Util.findFileSizeInMb(selectedFile);
+			if (fileSizeInMb > 1.2) {
+				showErrorMessage("File size should not be greater than 1.2 MB. Please resize image or upload new image.");
+				return;
+			}
+			Util.uploadProfilePicture(patientCode, selectedFile);
+			Util.loadIconImage(patientCode, dailyWork.getProfilePictureLabel(), 200, 200);
+			showInformationMessage("Profile pciture updated successfully");
+		}
+	}
+	
+	public void uploadAttachments() {
+		DailyWork dailyWork = getDailyWork();
+		RecordSelector recSel = getRecordSelector();
+		String patientCode = recSel.getPatientCode();
+	
+		if (patientCode == null || patientCode.trim().length() == 0) {
+			showErrorMessage("Please select patient before uploading profile picture");
+			return;
+		}
+		
+		int returnVal = fc.showSaveDialog(parentFrame);
+		
+		File selectedFile = null;
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			selectedFile = fc.getSelectedFile();
+			String name = selectedFile.getName().toLowerCase();
+			if (!(name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif"))) {
+				showErrorMessage("Application accept only JPG/GIF files. Choose different file");
+				return;
+			}
+			double fileSizeInMb = Util.findFileSizeInMb(selectedFile);
+			if (fileSizeInMb > 1.2) {
+				showErrorMessage("File size should not be greater than 1.2 MB. Please resize image or upload new image.");
+				return;
+			}
+			JPanel iconPanel = dailyWork.getAttachmentIconPanel();
+			JPanel attachmentPanel = dailyWork.getAttachmentImagePanel();
+			Util.uploadAttachment(iconPanel, attachmentPanel, patientCode, selectedFile);
+			showInformationMessage("Profile pciture updated successfully");
+		}
+	}
+	
+	public void repaintAttachmentImagePanel() {
+		DailyWork dailyWork = getDailyWork();
+		dailyWork.getAttachmentImagePanel().repaint();
+		dailyWork.getAttachmentScrollPanel().repaint();
+	}
+
+	private DailyWork getDailyWork() {
+		DailyWork dailyWork = getDailyWorkPanel().getDailyWork();
+		return dailyWork;
+	}
+	
+	public DailyWorkPanel getDailyWorkPanel() {
+		return getNamjoshiClinic().getDailyPanel();
+	}
+
+	public RecordSelector getRecordSelector() {
+		return getDailyWorkPanel().getRecordSelector();
+	}
+	
+	public NamjoshiClinic getNamjoshiClinic() {
+		NamjoshiClinic clinic = null;
+		if (parentFrame instanceof NamjoshiClinic) {
+			clinic = (NamjoshiClinic)parentFrame;
+		}
+		return clinic;
+	}
+	
+	public void enableUploadAttachmentButton() {
+		DailyWork dailyWork = getDailyWork();
+		dailyWork.getAttachmentUploadButton().setEnabled(true);
+	}
+	
+	public void disableUploadAttachmentButton() {
+		DailyWork dailyWork = getDailyWork();
+		dailyWork.getAttachmentUploadButton().setEnabled(false);
+	}
+	
+	public void enableUploadProfilePicture() {
+		getDailyWork().getUploadProfilePictureButton().setEnabled(true);
+	}
+	
+	public void disableUploadProfilePicture() {
+		getDailyWork().getUploadProfilePictureButton().setEnabled(false);
+	}
+
+	public void enableSaveProfileButton() {
+		getDailyWork().getSaveProfileButton().setEnabled(true);
+	}
+	
+	public void disableSaveProfileButton() {
+		getDailyWork().getSaveProfileButton().setEnabled(false);
+	}
+	
+	public void attachmentImgesFound() {
+		isAttachmentImagesFound = true;
+	}
+	
+	public void resetAttachmentImageFound() {
+		isAttachmentImagesFound = false;
+	}
+
+	public boolean isAttachmentImagesFound() {
+		return this.isAttachmentImagesFound;
+	}
+
+	public JLabel getAttachmentImageLabel() {
+		return getDailyWork().getAttachmentImageLabel();
 	}
 }

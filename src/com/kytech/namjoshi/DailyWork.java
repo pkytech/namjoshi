@@ -53,6 +53,14 @@ public class DailyWork extends JPanel {
 	private JTextArea txtAdvice;
 	private JTabbedPane tabbedPane;
 	private JDateChooser txtDob;
+	private JPanel attachmentImagePanel;
+	private JPanel attachmentIconPanel;
+	private JLabel lblPhoto;
+	private JScrollPane imageScrollPane;
+	private JButton btnUploadAttachment;
+	private JButton btnChoseImage;
+	private JButton btnSaveUpdate;
+	private JLabel lblAttachmentImageLabel;
 	private AdviceHistoryTableModel historyTableModel = new AdviceHistoryTableModel();
 	public DailyWork() {
 		setBackground(Color.BLUE);
@@ -214,26 +222,41 @@ public class DailyWork extends JPanel {
 		
 		attachmentsPanel.add(uploadPanel, BorderLayout.WEST);
 		
-		JButton btnUploadAttachment = new JButton("Upload");
+		btnUploadAttachment = new JButton("Upload");
 		btnUploadAttachment.setFont(Util.getSystemFont());
+		btnUploadAttachment.setEnabled(false);
 		uploadPanel.add(btnUploadAttachment);
+		btnUploadAttachment.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().uploadAttachments();
+			}
+		});
 		
 		
 		JScrollPane iconScollPane = new JScrollPane();
 		attachmentsPanel.add(iconScollPane, BorderLayout.NORTH);
 		
-		JPanel iconPanel = new JPanel();
-		iconScollPane.setViewportView(iconPanel);
+		attachmentIconPanel = new JPanel();
+		attachmentIconPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+		iconScollPane.setViewportView(attachmentIconPanel);
 		
 		
-		JScrollPane imageScrollPane = new JScrollPane();
+		imageScrollPane = new JScrollPane();
 		attachmentsPanel.add(imageScrollPane, BorderLayout.CENTER);
 		
-		JPanel imagePanel = new JPanel();
-		imagePanel.setBackground(Color.BLUE);
-		imageScrollPane.setViewportView(imagePanel);
+		attachmentImagePanel = new JPanel();
+		attachmentImagePanel.setBackground(Color.BLUE);
+		imageScrollPane.setViewportView(attachmentImagePanel);
+		attachmentImagePanel.setLayout(new BorderLayout(0, 0));
+		lblAttachmentImageLabel = new JLabel("");
+		lblAttachmentImageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		attachmentImagePanel.add(lblAttachmentImageLabel, BorderLayout.CENTER);
 		
-		Util.loadAttachmentIcons(iconPanel, imagePanel);
+		
+		//load dummy image
+		Util.loadEmptyAttachmentIcon(attachmentIconPanel);
 		
 		JPanel patientPhotoPanel = new JPanel();
 		patientPhotoPanel.setBackground(Color.BLUE);
@@ -245,14 +268,23 @@ public class DailyWork extends JPanel {
 		patientDetailsParent.add(patientPhotoPanel, BorderLayout.WEST);
 		patientPhotoPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		
-		JLabel lblPhoto = new JLabel("");
+		lblPhoto = new JLabel("");
 		lblPhoto.setHorizontalAlignment(SwingConstants.LEFT);
-		Util.loadIconImage(lblPhoto);
+		Util.loadIconImage(lblPhoto, 200, 200);
 		patientPhotoPanel.add(lblPhoto);
 		
-		JButton btnChoseImage = new JButton("Chose Image");
+		btnChoseImage = new JButton("Chose Image");
 		btnChoseImage.setFont(Util.getSystemFont());
-		patientPhotoPanel.add(btnChoseImage); 
+		btnChoseImage.setEnabled(false);
+		patientPhotoPanel.add(btnChoseImage);
+		btnChoseImage.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().chooseProfilePicture();
+				
+			}
+		});
 		
 		JPanel patientDetails = new JPanel();
 		patientDetails.setForeground(Color.WHITE);
@@ -361,8 +393,9 @@ public class DailyWork extends JPanel {
 		patientDetails.add(txtReference);
 		txtAge.setColumns(10);
 		
-		JButton btnSaveUpdate = new JButton("Save/Update");
+		btnSaveUpdate = new JButton("Save/Update");
 		patientDetails.add(btnSaveUpdate);
+		btnSaveUpdate.setEnabled(false);
 		btnSaveUpdate.setFont(Util.getSystemFont());
 		btnSaveUpdate.addActionListener(new ActionListener() {
 			
@@ -494,5 +527,37 @@ public class DailyWork extends JPanel {
 	
 	public void setFeeCode(String feeCode) {
 		txtFeeCode.setText(feeCode);
+	}
+	
+	public JLabel getProfilePictureLabel() {
+		return this.lblPhoto;
+	}
+	
+	public JPanel getAttachmentIconPanel() {
+		return this.attachmentIconPanel;
+	}
+	
+	public JPanel getAttachmentImagePanel() {
+		return this.attachmentImagePanel;
+	}
+
+	public JScrollPane getAttachmentScrollPanel() {
+		return this.imageScrollPane;
+	}
+	
+	public JButton getAttachmentUploadButton() {
+		return this.btnUploadAttachment;
+	}
+	
+	public JButton getUploadProfilePictureButton() {
+		return this.btnChoseImage;
+	}
+	
+	public JButton getSaveProfileButton() {
+		return this.btnSaveUpdate;
+	}
+
+	public JLabel getAttachmentImageLabel() {
+		return this.lblAttachmentImageLabel;
 	}
 }

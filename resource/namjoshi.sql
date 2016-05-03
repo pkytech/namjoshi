@@ -145,3 +145,14 @@ go
 ALTER TABLE Prescription_Transaction add DEFAULT -1 for Pre_id
 GO
 
+-- Trigger to update Pre_Id if it is -1. This will make old system work as expected
+CREATE TRIGGER Prescription_Transaction_Update_Pre_Id
+	ON Prescription_Transaction 
+	AFTER INSERT 
+	AS 
+BEGIN
+	SET NOCOUNT ON;
+	UPDATE Prescription_Transaction SET Pre_id=(select max(Pre_id)+1 from Prescription_Transaction) 
+	from Prescription_Transaction t inner join inserted i on t.Pre_id=i.Pre_id and t.P_id=i.P_id and i.Pre_id=-1
+END
+GO

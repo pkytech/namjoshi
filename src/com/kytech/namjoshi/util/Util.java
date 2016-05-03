@@ -5,7 +5,6 @@ package com.kytech.namjoshi.util;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -13,12 +12,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -30,6 +37,7 @@ import javax.swing.SwingConstants;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.DocumentFilter;
 
+import com.kytech.namjoshi.AttachmentLabel;
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
 
 /**
@@ -50,14 +58,38 @@ public final class Util {
 		label.setIcon(iconLogo);
 	}
 	
-	public static void loadIconImage(JLabel label) {
-		BufferedImage img = loadImage(imageDir + "no-image-icon-md.png");
-		img = resize(img, 100, 100);
+	public static void loadIconImage(JLabel label, String imageFilename, int width, int height) {
+		BufferedImage img = loadImage(imageFilename);
+		img = resize(img, width, height);
 		ImageIcon iconLogo = new ImageIcon(img);
 		label.setIcon(iconLogo);
-		label.setSize(100, 100);
+		label.setSize(width, height);
 	}
 
+	public static void loadIconImage(JLabel label, int width, int height) {
+		loadIconImage(label, imageDir + "no-image-icon-md.png", width, height);
+	}
+	
+	public static void loadIconImage(JLabel label) {
+		loadIconImage(label, imageDir + "no-image-icon-md.png", 100, 100);
+	}
+
+	public static void loadIconImage(String patientCode, JLabel label, int width, int height) {
+		String uploadDirStr = NamjoshiConfigurator.getInstance().getKeyValue(
+				NamjoshiConfigurator.PATIENT_PROFILE_PIC_DIR);
+		File profilePic = new File(uploadDirStr, patientCode+".jpg");
+		if (profilePic.exists()) {
+			BufferedImage img = loadImage(uploadDirStr + File.separator + patientCode+".jpg");
+			img = resize(img, width, height);
+			ImageIcon iconLogo = new ImageIcon(img);
+			label.setIcon(iconLogo);
+			label.setSize(width, height);
+			label.repaint();
+		}
+	}
+	public static void loadIconImage(String patientCode, JLabel label) {
+		loadIconImage(patientCode, label, 100, 100);
+	}
 	public static final BufferedImage loadImage(String imageFileName) {
 		BufferedImage img = null;
 		try {
@@ -67,8 +99,14 @@ public final class Util {
 		}
 		return img;
 	}
+
 	public static void loadImage(JLabel label) {
 		ImageIcon iconLogo = new ImageIcon(loadImage(imageDir + "/no-image-icon-md.png"));
+		label.setIcon(iconLogo);
+	}
+
+	public static void loadImage(JLabel label, String imageFileName) {
+		ImageIcon iconLogo = new ImageIcon(loadImage(imageFileName));
 		label.setIcon(iconLogo);
 	}
 	
@@ -93,33 +131,100 @@ public final class Util {
 	    return bi;
 	}
 	
-	public static void loadAttachmentIcons(JPanel panel, final JPanel imagePanel) {
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 0));
+	public static void loadEmptyAttachmentIcon(JPanel iconPanel) {
+		AttachmentLabel label = new AttachmentLabel();
+		String fullFileName = imageDir + "noimageavailable.png"; 
+		loadIconImage(label, fullFileName, 100, 100);
+		label.setFullFileName(fullFileName);
 		
-		for (int i = 0; i < 20; i++) {
-			JLabel label = new JLabel();
-			
-			label.addMouseListener(new MouseAdapter() {
-				
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					System.out.println("Image clicked");
-					imagePanel.removeAll();
-					imagePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
-					
-					JLabel image = new JLabel();
-					image.setBorder(BorderFactory.createLineBorder(Color.red));
-					loadImage(image);
-					imagePanel.add(image);
-					imagePanel.repaint();
-					imagePanel.setVisible(true);
-					System.out.println("Image Added");
-				}
-			});
-			loadIconImage(label);
-			panel.add(label);
-			
+		iconPanel.add(label);
+	}
+	
+	
+	public static void loadAttachmentIcons(JPanel attachmentIconPanel, JPanel attachmentImagePanel, String patientCode) {
+		String uploadDirStr = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.PATIENT_ATTACH_DIR);
+		String subFolder = determineSubfolder(Long.parseLong(patientCode));
+		File rootFolder = new File(uploadDirStr, subFolder);
+		File attachDir = new File(rootFolder, patientCode);
+		if (attachDir.exists()) {
+			String files[] = attachDir.list();
+			if (files == null || files.length <= -1) {
+				loadEmptyAttachmentIcon(attachmentIconPanel);
+				return;
+			}
+			String sortedFiles[] = sortFilesAsPerName(files);
+			if (sortedFiles.length > 0) {
+				NamjoshiUIManager.getUIManager().attachmentImgesFound();
+			}
+			for (String file : sortedFiles) {
+				AttachmentLabel label = new AttachmentLabel();
+				addMouseListener(label);
+				String fullFileName = attachDir.getAbsolutePath() + File.separator + file; 
+				loadIconImage(label, fullFileName, 100, 100);
+				label.setFullFileName(fullFileName);
+				attachmentIconPanel.add(label);
+			}
+		} else {
+			loadEmptyAttachmentIcon(attachmentIconPanel);
 		}
+	}
+
+	private static String[] sortFilesAsPerName(String[] files) {
+		List<String> fileNames = new ArrayList<String>();
+		for (String file : files) {
+			if (!file.startsWith(".")) {
+				fileNames.add(file);
+			}
+		}
+		Collections.sort(fileNames, new Comparator<String>() {
+
+			@Override
+			public int compare(String o1, String o2) {
+				Long time1 = Long.parseLong(o1.substring(0, o1.indexOf('.')));
+				Long time2 = Long.parseLong(o2.substring(0, o2.indexOf('.')));
+				return time1.compareTo(time2);
+			}
+		});
+		return fileNames.toArray(new String[fileNames.size()]);
+	}
+
+	public static void addNewAttachmentIcon(JPanel iconPanel, JPanel attachmentImagePanel, File newFile) {
+		AttachmentLabel label = new AttachmentLabel();
+		addMouseListener(label);
+		loadIconImage(label, newFile.getAbsolutePath(), 100, 100);
+		if (!NamjoshiUIManager.getUIManager().isAttachmentImagesFound()) {
+			iconPanel.removeAll();
+		}
+		label.setFullFileName(newFile.getAbsolutePath());
+		iconPanel.add(label);
+		NamjoshiUIManager.getUIManager().attachmentImgesFound();
+	}
+
+	private static void addMouseListener(AttachmentLabel label) {
+		label.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				Object o = e.getSource();
+				AttachmentLabel sourceLabel = null;
+				String fullFileName = imageDir + "noimageavailable.png";
+				if (o instanceof AttachmentLabel) {
+					sourceLabel = (AttachmentLabel)o;
+					fullFileName = sourceLabel.getFullFileName();
+				}
+				
+				System.out.println("Image clicked");
+				
+				
+				
+				JLabel image = NamjoshiUIManager.getUIManager().getAttachmentImageLabel();
+				image.setBorder(BorderFactory.createLineBorder(Color.red));
+				loadImage(image, fullFileName);
+				
+				NamjoshiUIManager.getUIManager().repaintAttachmentImagePanel();
+				System.out.println("Image Added");
+			}
+		});
 	}
 	
 	public static String formatDate(Date exDate) {
@@ -175,5 +280,87 @@ public final class Util {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void uploadProfilePicture(String patientCode,
+			File selectedFile) {
+
+		String uploadDirStr = NamjoshiConfigurator.getInstance().getKeyValue(
+				NamjoshiConfigurator.PATIENT_PROFILE_PIC_DIR);
+		File uploadDir = new File(uploadDirStr);
+		if (!uploadDir.exists()) uploadDir.mkdirs(); 
+		File destinationFile = new File(uploadDir, patientCode+".jpg");
+		boolean success = copyFile(selectedFile, destinationFile);
+		if (!success) {
+			NamjoshiUIManager.getUIManager().showErrorMessage("Failed to upload file. Please check logs.");
+		}
+	}
+
+	public static boolean copyFile(File inputFile, File destinationFile) {
+		boolean result = false;
+		byte data[] = new byte[512*5];
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			in = new FileInputStream(inputFile);
+			out = new FileOutputStream(destinationFile);
+			int len = -1;
+			while ((len = in.read(data)) != -1) {
+				out.write(data, 0, len);
+			}
+			result = true;
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+				}
+			}
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return result;
+	}
+
+	public static void uploadAttachment(JPanel iconPanel, JPanel attachmentImagePanel, String patientCode, File selectedFile) {
+		String uploadDirStr = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.PATIENT_ATTACH_DIR);
+		String subFolder = determineSubfolder(Long.parseLong(patientCode));
+		File rootFolder = new File(uploadDirStr, subFolder);
+		if (!rootFolder.exists()) {
+			rootFolder.mkdirs();
+		}
+		File attachDir = new File(rootFolder, patientCode);
+		if (!attachDir.exists()) {
+			attachDir.mkdir();
+		}
+		String fileName = selectedFile.getName();
+		String ext = fileName.substring(fileName.indexOf('.'), fileName.length());
+		String destFileName = (new Date().getTime()) + ext;
+		File destFile = new File(attachDir, destFileName);
+		boolean success = copyFile(selectedFile, destFile);
+		if (!success) {
+			NamjoshiUIManager.getUIManager().showErrorMessage("Failed to upload file. Please check logs.");
+			return;
+		}
+		addNewAttachmentIcon(iconPanel, attachmentImagePanel, destFile);
+		iconPanel.repaint();
+	}
+
+	public static String determineSubfolder(long patientCode) {
+		return String.valueOf(((patientCode/1000)+1)*1000);
+	}
+
+	public static double findFileSizeInMb(File selectedFile) {
+		return (selectedFile.length()/1024)/1024;
+	}
+
+	public static void emptyAttachmentImage(JLabel attachmentImageLabel) {
+		attachmentImageLabel.setIcon(null);
 	}
 }
