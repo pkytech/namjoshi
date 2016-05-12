@@ -20,12 +20,15 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -49,9 +52,25 @@ public final class Util {
 	private static final String imageDir = baseDir + "/images/";
 	private static final SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
 	private static final String PRINT_DEVIDER = "-----------------------------------";
+	private static final Map<String, String> FEE_MAP = new HashMap<String, String>();
+	static {
+		initializeFeeCodeMaster();
+	}
 	private Util(){
 	}
 	
+	private static void initializeFeeCodeMaster() {
+		String value = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.FEE_CODE);
+		value = value.trim().toUpperCase();
+		String values[] = value.split(",");
+		for (String val : values) {
+			String feeParts[] = val.split("-");
+			String feeCode = feeParts[0];
+			String fee = feeParts[1];
+			FEE_MAP.put(feeCode, fee);
+		}
+	}
+
 	public static void loadIconImage(JLabel label, String imageName) {
 		BufferedImage img = loadImage(imageDir + imageName);
 		ImageIcon iconLogo = new ImageIcon(img);
@@ -231,6 +250,10 @@ public final class Util {
 		return exDate != null ? sfd.format(exDate) : "";
 	}
 	
+	public static Date parseDate(String exDate) throws ParseException {
+		return exDate != null ? sfd.parse(exDate) : null;
+	}
+	
 	public static Font getSystemFont() {
 		return new Font("Lucida Grande", Font.BOLD, 24);
 	}
@@ -362,5 +385,17 @@ public final class Util {
 
 	public static void emptyAttachmentImage(JLabel attachmentImageLabel) {
 		attachmentImageLabel.setIcon(null);
+	}
+
+	public static double calculateAmountPayable(String feeCode,
+			double outstanding) {
+		
+		String fee = feeCode.trim().toUpperCase();
+		char parts[] = fee.toCharArray();
+		StringBuffer sbOut = new StringBuffer();
+		for (char code : parts) {
+			sbOut.append(FEE_MAP.get(String.valueOf(code)));
+		}
+		return Double.valueOf(sbOut.toString());
 	}
 }

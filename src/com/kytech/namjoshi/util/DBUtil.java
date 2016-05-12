@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -19,6 +20,7 @@ import org.apache.commons.dbcp2.PoolingDriver;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
+import com.kytech.namjoshi.bo.DailyCollection;
 import com.kytech.namjoshi.bo.Patient;
 import com.kytech.namjoshi.bo.Prescription;
 
@@ -35,6 +37,11 @@ public final class DBUtil {
 	private static final String UPDATE_PATIENT = "update Patient_Master set PFName=?, PMName=?, PLName=?, Address=?, TPhone=?, MPhone=?, DrReference=?, birth_date=? where Pid=?";
 	private static final String SELECT_MAX_PRESCRIPTION_ID = "select max(Pre_id) from Prescription_Transaction";
 	private static final String INSERT_PRESCRIPTION = "insert into Prescription_Transaction(Pre_id, P_id, sym_nm, Med_nm, Adv_nm, Ex_date, Fee_Code) values (?, ?, ?, ?, ?, ?, ?)";
+	private static final String SELECT_COLLECTION = "select m.PFName, m.PLName,t.Fee_Code,t.Pre_id, t.P_id, t.Ex_date, m.Pre_Bal, t.Net_Payable from Prescription_Transaction t inner join Patient_Master m on m.Pid=t.P_id where Ex_date>=? and Ex_date<? order by t.Ex_date";
+	private static final String UPDATE_PATIENT_OUTSTANDING = "update Patient_Master set Pre_Bal=? where Pid=?";
+	public static final int MORNING = 1;
+	public static final int EVENING = 2;
+	public static final int BOTH = 3;
 	private DBUtil(){
 	}
 
@@ -374,5 +381,91 @@ public final class DBUtil {
 			}
 		}
 		return prescriptionId;
+	}
+	
+	public static List<DailyCollection> selectCollection(String exDateStr, int type) {
+		if (!(type == MORNING || type == EVENING || type == BOTH)) {
+			return null;
+		}
+		List<DailyCollection> rows = new ArrayList<DailyCollection>();
+		Date startDate = null;
+		Date endDate = null;
+		try {
+			Date exDate = Util.parseDate(exDateStr);
+			Calendar cal = Calendar.getInstance();
+			switch (type) {
+				case MORNING:
+					startDate = exDate;
+					cal.setTime(exDate);
+					cal.set(Calendar.HOUR, 15);
+					cal.set(Calendar.MINUTE, 0);
+					cal.set(Calendar.SECOND, 0);
+					endDate = cal.getTime();
+					break;
+				case EVENING:
+					cal.setTime(exDate);
+					cal.set(Calendar.HOUR, 15);
+					cal.set(Calendar.MINUTE, 0);
+					cal.set(Calendar.SECOND, 0);
+					startDate = cal.getTime();
+					cal.setTime(exDate);
+					cal.add(Calendar.DATE, 1);
+					endDate = cal.getTime();
+					break;
+				case BOTH:
+					startDate = exDate;
+					cal.add(Calendar.DATE, 1);
+					endDate = cal.getTime();
+					break;
+				default:
+					startDate = exDate;
+					endDate = exDate;
+			}
+			try (Connection con = getConnection(OLTP_POOL_NAME)) {
+				try (PreparedStatement pstmt = con.prepareStatement(SELECT_COLLECTION)) {
+					pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
+					pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
+					try (ResultSet rs = pstmt.executeQuery()) {
+						DailyCollection coll = null;
+						while (rs.next()) {
+							coll = new DailyCollection();
+							coll.setPrescriptionCode(rs.getLong("Pre_id"));
+							coll.setPatientCode(rs.getLong("P_id"));
+							coll.setFirstName(rs.getString("PFName"));
+							coll.setLastName(rs.getString("PLName"));
+							coll.setFeeCode(rs.getString("Fee_Code"));
+							coll.setExaminationDate(rs.getDate("Ex_date"));
+							coll.setOutstanding(rs.getDouble("Pre_Bal"));
+							coll.setAmountPayable(Util.calculateAmountPayable(coll.getFeeCode(), coll.getOutstanding()));
+							rows.add(coll);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rows;
+	}
+
+	public static void updatePatientOutstandingAmount(long patientCode,
+			double data) {
+		
+		try (Connection con = getConnection(OLTP_POOL_NAME)) {
+			try (PreparedStatement stmt = con.prepareStatement(UPDATE_PATIENT_OUTSTANDING)) {
+				con.setAutoCommit(false);
+				stmt.setDouble(1, data);
+				stmt.setLong(2, patientCode);
+				int updatedRows = stmt.executeUpdate();
+				if (updatedRows > 0) {
+					con.rollback();
+				}
+				con.commit();
+				con.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(System.err);
+		}
+		
 	}
 }

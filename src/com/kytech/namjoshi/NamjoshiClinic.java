@@ -33,8 +33,10 @@ import com.kytech.namjoshi.util.Util;
 public class NamjoshiClinic extends JFrame {
 	private final Action dailyWorkAction = new SwingAction(getContentPane());
 	private final ExitListner exitListner = new ExitListner(getContentPane());
-	private DailyWorkPanel dailyWorkPanel = new DailyWorkPanel();
+	private DailyWorkPanel dailyWorkPanel;
+	private DailyCollectionPanel dailyCollection;
 	private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	private final Action action = new SwingAction_1();
 	public NamjoshiClinic() {
 		getContentPane().setBackground(Color.BLUE);
 		
@@ -63,6 +65,7 @@ public class NamjoshiClinic extends JFrame {
 		menuBar.add(mnReports);
 		
 		JMenuItem mntmDailyCollection = new JMenuItem("Daily Collection");
+		mntmDailyCollection.setAction(action);
 		mntmDailyCollection.setFont(Util.getSystemFont());
 		mnReports.add(mntmDailyCollection);
 		
@@ -105,6 +108,24 @@ public class NamjoshiClinic extends JFrame {
 		
 	}
 	
+	private void removeDailyWork() {
+		JPanel blankPanel = new JPanel();
+		blankPanel.setBackground(Color.BLUE);
+		getContentPane().add(blankPanel, BorderLayout.CENTER);
+		dailyWorkPanel.setVisible(false);
+		dailyWorkPanel = null;
+		setVisible(true);
+	}
+
+	private void removeDailyCollection() {
+		JPanel blankPanel = new JPanel();
+		blankPanel.setBackground(Color.BLUE);
+		getContentPane().add(blankPanel, BorderLayout.CENTER);
+		dailyCollection.setVisible(false);
+		dailyCollection = null;
+		setVisible(true);
+	}
+	
 	private class ExitListner implements ActionListener {
 		private Container parentContainer = null;
 		public ExitListner(Container container) {
@@ -113,14 +134,13 @@ public class NamjoshiClinic extends JFrame {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JPanel blankPanel = new JPanel();
-			blankPanel.setBackground(Color.BLUE);
-			this.parentContainer.add(blankPanel, BorderLayout.CENTER);
-			dailyWorkPanel.setVisible(false);
-			dailyWorkPanel = null;
-			setVisible(true);
+			if (dailyWorkPanel != null) {
+				removeDailyWork();
+			} else if (dailyCollection != null) {
+				removeDailyCollection();
+			}
+			
 		}
-		
 	}
 
 	private class SwingAction extends AbstractAction {
@@ -131,6 +151,9 @@ public class NamjoshiClinic extends JFrame {
 			this.parentContainer = container;
 		}
 		public void actionPerformed(ActionEvent e) {
+			if (dailyCollection != null) {
+				return;
+			}
 			if (dailyWorkPanel == null) {
 				dailyWorkPanel = new DailyWorkPanel();
 			}
@@ -138,16 +161,31 @@ public class NamjoshiClinic extends JFrame {
 			dailyWorkPanel.addExitListner(exitListner);
 			dailyWorkPanel.setVisible(true);
 			dailyWorkPanel.repaint();
+			//getContentPane().repaint();
 			setVisible(true);
 		}
 	}
 
-	/**
-	 * Returns Daily work panel.
-	 *  
-	 * @return
-	 */
 	public DailyWorkPanel getDailyPanel() {
 		return this.dailyWorkPanel;
+	}
+	private class SwingAction_1 extends AbstractAction {
+		public SwingAction_1() {
+			putValue(NAME, "Daily Report");
+			putValue(SHORT_DESCRIPTION, "Shows daily report of patient examination");
+		}
+		public void actionPerformed(ActionEvent e) {
+			if (dailyWorkPanel != null) {
+				return;
+			}
+			if (dailyCollection == null) {
+				dailyCollection = new DailyCollectionPanel();
+			}
+			getContentPane().add(dailyCollection, BorderLayout.CENTER);
+			dailyCollection.setVisible(true);
+			dailyCollection.addExitListener(exitListner);
+			dailyCollection.repaint();
+			setVisible(true);
+		}
 	}
 }

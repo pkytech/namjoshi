@@ -13,9 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableModel;
 
-import com.kytech.namjoshi.bo.Patient;
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.table.PatientDetailsTableModel;
 import com.kytech.namjoshi.util.Util;

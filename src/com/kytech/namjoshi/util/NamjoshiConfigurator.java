@@ -13,6 +13,7 @@ public final class NamjoshiConfigurator {
 	public static final String BIIL_PRINT_EXEC = "namjoshi.bills.print";
 	public static final String PATIENT_PROFILE_PIC_DIR = "namjoshi.profilePic.dir";
 	public static final String PATIENT_ATTACH_DIR = "namjoshi.attachment.dir";
+	public static final String  FEE_CODE = "namjoshi.fee.code";
 	private static NamjoshiConfigurator configurator = null;
 	private Properties configValues = null;
 	private NamjoshiConfigurator() {

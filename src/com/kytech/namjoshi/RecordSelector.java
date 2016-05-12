@@ -57,6 +57,7 @@ public class RecordSelector extends JPanel {
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(false);
 						NamjoshiUIManager.getUIManager().loadSearchedPatient();
+						NamjoshiUIManager.getUIManager().resetSearchPanel();
 						dialog.dispose();
 					}
 				});
@@ -145,7 +146,6 @@ public class RecordSelector extends JPanel {
 		panel.add(lblDues);
 		
 		txtDues = new JTextField();
-		txtDues.setText("100");
 		txtDues.setToolTipText("");
 		txtDues.setForeground(Color.RED);
 		txtDues.setEditable(false);
