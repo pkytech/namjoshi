@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,6 +43,7 @@ public final class DBUtil {
 	public static final int MORNING = 1;
 	public static final int EVENING = 2;
 	public static final int BOTH = 3;
+	private static final String SELECT_PATIENT_OUTSTANDING = "select Pid, PFName, PLName, Pre_Bal from Patient_Master where Pre_Bal>0 order by Pid";
 	private DBUtil(){
 	}
 
@@ -351,7 +353,7 @@ public final class DBUtil {
 				stmt.setString(3, symtom);
 				stmt.setString(4, prescription);
 				stmt.setString(5, advice);
-				stmt.setDate(6, new java.sql.Date(new Date().getTime()));
+				stmt.setTimestamp(6, new Timestamp(new Date().getTime()));
 				stmt.setString(7, feeCode);
 				stmt.execute();
 				recordInserted = true;
@@ -414,6 +416,7 @@ public final class DBUtil {
 					break;
 				case BOTH:
 					startDate = exDate;
+					cal.setTime(startDate);
 					cal.add(Calendar.DATE, 1);
 					endDate = cal.getTime();
 					break;
@@ -423,8 +426,8 @@ public final class DBUtil {
 			}
 			try (Connection con = getConnection(OLTP_POOL_NAME)) {
 				try (PreparedStatement pstmt = con.prepareStatement(SELECT_COLLECTION)) {
-					pstmt.setDate(1, new java.sql.Date(startDate.getTime()));
-					pstmt.setDate(2, new java.sql.Date(endDate.getTime()));
+					pstmt.setTimestamp(1, new java.sql.Timestamp(startDate.getTime()));
+					pstmt.setTimestamp(2, new java.sql.Timestamp(endDate.getTime()));
 					try (ResultSet rs = pstmt.executeQuery()) {
 						DailyCollection coll = null;
 						while (rs.next()) {
@@ -457,7 +460,7 @@ public final class DBUtil {
 				stmt.setDouble(1, data);
 				stmt.setLong(2, patientCode);
 				int updatedRows = stmt.executeUpdate();
-				if (updatedRows > 0) {
+				if (updatedRows > 1) {
 					con.rollback();
 				}
 				con.commit();
@@ -467,5 +470,27 @@ public final class DBUtil {
 			e.printStackTrace(System.err);
 		}
 		
+	}
+
+	public static List<DailyCollection> selectPatientDues() {
+		List<DailyCollection> dues = new ArrayList<DailyCollection>();
+		try (Connection con = getConnection(OLTP_POOL_NAME)) {
+			try (PreparedStatement stmt = con.prepareStatement(SELECT_PATIENT_OUTSTANDING)) {
+				try (ResultSet rs = stmt.executeQuery()) {
+					DailyCollection col = null;
+					while (rs.next()) {
+						col = new DailyCollection();
+						col.setPatientCode(rs.getLong("Pid"));
+						col.setFirstName(rs.getString("PFName"));
+						col.setLastName(rs.getString("PLName"));
+						col.setOutstanding(rs.getDouble("Pre_Bal"));
+						dues.add(col);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace(System.err);
+		}
+		return dues;
 	}
 }

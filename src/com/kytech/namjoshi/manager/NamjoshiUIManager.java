@@ -79,6 +79,8 @@ public final class NamjoshiUIManager {
 		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
 		dailyWork.setHistoryTableModelData(pre);
 		recSel.setPatientName(patientFullName);
+		double prevBal = pat.getPreviousBalance();
+		recSel.setOutstandingAmount(prevBal == 0 ? -1 : prevBal);
 		recSel.disablePatientCode();
 		dailyWork.setFirstName(pat.getFirstName());
 		dailyWork.setMiddleName(pat.getMiddleName());
@@ -124,6 +126,7 @@ public final class NamjoshiUIManager {
 		DailyWork dailyWork = dailyWorkPanel.getDailyWork();
 		List<Prescription> rows = new ArrayList<Prescription>();
 		recSel.setPatientCode("");
+		recSel.setOutstandingAmount(-1);
 		dailyWork.setHistoryTableModelData(rows);
 		recSel.enablePatientCode();
 		recSel.setPatientName("");

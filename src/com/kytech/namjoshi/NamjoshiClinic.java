@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
+import com.kytech.namjoshi.table.DailyCollectionTableModel;
 import com.kytech.namjoshi.util.Util;
 
 /**
@@ -36,10 +37,11 @@ public class NamjoshiClinic extends JFrame {
 	private DailyWorkPanel dailyWorkPanel;
 	private DailyCollectionPanel dailyCollection;
 	private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-	private final Action action = new SwingAction_1();
+	private final Action action = new DailyCollectionAction();
+	private final Action duesAction = new DailyCollectionAction(DailyCollectionTableModel.COLLECTION_TYPE);
 	public NamjoshiClinic() {
 		getContentPane().setBackground(Color.BLUE);
-		
+		Util.setFrameIcon(this, "hospital-2-16.png", "hospital-2-32.png", "hospital-2-favicon.png");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.BLUE);
@@ -70,6 +72,7 @@ public class NamjoshiClinic extends JFrame {
 		mnReports.add(mntmDailyCollection);
 		
 		JMenuItem mntmDues = new JMenuItem("Dues");
+		mntmDues.setAction(duesAction);
 		mntmDues.setFont(Util.getSystemFont());
 		mnReports.add(mntmDues);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -105,7 +108,6 @@ public class NamjoshiClinic extends JFrame {
 	 */
 	public static void main(String[] args) {
 		NamjoshiClinic clinic = new NamjoshiClinic();
-		
 	}
 	
 	private void removeDailyWork() {
@@ -169,17 +171,27 @@ public class NamjoshiClinic extends JFrame {
 	public DailyWorkPanel getDailyPanel() {
 		return this.dailyWorkPanel;
 	}
-	private class SwingAction_1 extends AbstractAction {
-		public SwingAction_1() {
-			putValue(NAME, "Daily Report");
-			putValue(SHORT_DESCRIPTION, "Shows daily report of patient examination");
+	private class DailyCollectionAction extends AbstractAction {
+		private int type;
+		public DailyCollectionAction() {
+			this(DailyCollectionTableModel.COLLECTION_TYPE);
+		}
+		public DailyCollectionAction(int type) {
+			this.type = type;
+			if (type == DailyCollectionTableModel.COLLECTION_TYPE) {
+				putValue(NAME, "Daily Report");
+				putValue(SHORT_DESCRIPTION, "Shows daily report of patient examination");
+			} else if (type == DailyCollectionTableModel.DUES_TYPES) {
+				putValue(NAME, "Dues");
+				putValue(SHORT_DESCRIPTION, "Shows dues of patients");
+			}
 		}
 		public void actionPerformed(ActionEvent e) {
 			if (dailyWorkPanel != null) {
 				return;
 			}
 			if (dailyCollection == null) {
-				dailyCollection = new DailyCollectionPanel();
+				dailyCollection = new DailyCollectionPanel(type);
 			}
 			getContentPane().add(dailyCollection, BorderLayout.CENTER);
 			dailyCollection.setVisible(true);

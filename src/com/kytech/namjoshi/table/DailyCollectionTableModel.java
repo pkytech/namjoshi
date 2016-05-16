@@ -18,9 +18,26 @@ import com.kytech.namjoshi.util.DBUtil;
 public class DailyCollectionTableModel extends AbstractTableModel {
 
 	private List<DailyCollection> rows = new ArrayList<DailyCollection>();
-	private static final String[] columnNames = new String[]{"Patient Code", "First Name", "Last Name", "Fee Code", "Previous Balance", "Amount Payable", "Outstanding"};
+	private static final String[] COLLECTION_COLUMN_NAMES = new String[]{"Patient Code", "First Name", "Last Name", "Fee Code", "Previous Balance", "Amount Payable", "Outstanding"};
+	private static final String[] DUES_COLUMN_NAME = new String[]{"Patient Code", "First Name", "Last Name", "Outstanding"};
+	private String columnNames[];
+	public static final int COLLECTION_TYPE = 0;
+	public static final int DUES_TYPES = 1;
+	private int type = COLLECTION_TYPE;
 	private double data = 10;
 	
+	public DailyCollectionTableModel() {
+		columnNames = COLLECTION_COLUMN_NAMES;
+	}
+
+	public DailyCollectionTableModel(int type) {
+		if (type == DUES_TYPES) {
+			columnNames = DUES_COLUMN_NAME;
+			this.type = DUES_TYPES; 
+		} else {
+			columnNames = COLLECTION_COLUMN_NAMES;
+		}
+	}
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
@@ -42,8 +59,35 @@ public class DailyCollectionTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		String value = "";
+		Object value = null;
 		DailyCollection coll = rows.get(rowIndex);
+		if (type == COLLECTION_TYPE) {
+			value = getCollectionValueAt(columnIndex, coll); 
+		} else if (type == DUES_TYPES) {
+			value = getDuesValueAt(columnIndex, coll);
+		}
+		return value;
+	}
+
+	private Object getDuesValueAt(int columnIndex, DailyCollection coll) {
+		Object value = null;
+		switch (columnIndex) {
+		case 0:
+			value = coll.getFirstName();
+			break;
+		case 1:
+			value = coll.getLastName();
+			break;
+		case 2:
+			value = coll.getOutstanding();
+			break;
+		}
+		return value;
+	}
+
+	private Object getCollectionValueAt(int columnIndex,
+			DailyCollection coll) {
+		Object value = null;
 		switch(columnIndex) {
 			case 0:
 				value = String.valueOf(coll.getPatientCode());
@@ -58,13 +102,13 @@ public class DailyCollectionTableModel extends AbstractTableModel {
 				value = coll.getFeeCode();
 				break;
 			case 4:
-				value = String.valueOf(coll.getPreviousBal());
+				value = coll.getPreviousBal();
 				break;
 			case 5:
-				value = String.valueOf(coll.getAmountPayable());
+				value = coll.getAmountPayable();
 				break;
 			case 6:
-				value = String.valueOf(coll.getOutstanding());
+				value = coll.getOutstanding();
 				break;
 		}
 		return value;

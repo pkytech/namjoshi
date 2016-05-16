@@ -179,7 +179,7 @@ public class RecordSelector extends JPanel {
 	}
 	
 	public void setOutstandingAmount(double amount) {
-		txtDues.setText(String.valueOf(amount));
+		txtDues.setText(amount == -1 ? "" : String.valueOf(amount));
 	}
 
 	public PatientSearchPanel getSearchPanel() {

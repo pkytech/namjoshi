@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -17,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -33,6 +35,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -48,27 +51,62 @@ import com.kytech.namjoshi.manager.NamjoshiUIManager;
  *
  */
 public final class Util {
-	private static final String baseDir = "/Users/tphadke/work/workspaceHCL/NamjoshiClinic";
+	private static final String baseDir = System.getProperty("user.dir");
 	private static final String imageDir = baseDir + "/images/";
 	private static final SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
 	private static final String PRINT_DEVIDER = "-----------------------------------";
 	private static final Map<String, String> FEE_MAP = new HashMap<String, String>();
 	static {
+		initializeLogFile();
 		initializeFeeCodeMaster();
 	}
 	private Util(){
 	}
 	
+	private static void initializeLogFile() {
+		File logDir = new File(baseDir, "logs");
+		if (!logDir.exists()) {
+			logDir.mkdirs();
+		}
+		File logFile = new File(logDir, "namjoshi.log");
+		if (logFile.exists()) {
+			if (logFile.length() > 0) {
+				File newFile = new File(logDir, "namjoshi-" + System.currentTimeMillis() + ".log");
+				logFile.renameTo(newFile);
+			}
+		}
+		try {
+			logFile.createNewFile();
+			PrintStream ps = new PrintStream(logFile);
+			System.setErr(ps);
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
+		}
+		
+ 	}
+
 	private static void initializeFeeCodeMaster() {
 		String value = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.FEE_CODE);
 		value = value.trim().toUpperCase();
 		String values[] = value.split(",");
 		for (String val : values) {
+			if (val == null || val.indexOf('-') < 0) {
+				continue;
+			}
 			String feeParts[] = val.split("-");
 			String feeCode = feeParts[0];
 			String fee = feeParts[1];
 			FEE_MAP.put(feeCode, fee);
 		}
+	}
+
+	public static void setFrameIcon(JFrame frame, String... imageNames) {
+		List<Image> icons = new ArrayList<Image>();
+		for (String name : imageNames) {
+			BufferedImage img = loadImage(imageDir + name);
+			icons.add(img);
+		}
+		frame.setIconImages(icons);
 	}
 
 	public static void loadIconImage(JLabel label, String imageName) {
