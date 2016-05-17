@@ -399,16 +399,18 @@ public final class DBUtil {
 				case MORNING:
 					startDate = exDate;
 					cal.setTime(exDate);
-					cal.set(Calendar.HOUR, 15);
+					cal.set(Calendar.HOUR, 3);
 					cal.set(Calendar.MINUTE, 0);
 					cal.set(Calendar.SECOND, 0);
+					cal.set(Calendar.AM_PM, Calendar.PM);
 					endDate = cal.getTime();
 					break;
 				case EVENING:
 					cal.setTime(exDate);
-					cal.set(Calendar.HOUR, 15);
+					cal.set(Calendar.HOUR, 3);
 					cal.set(Calendar.MINUTE, 0);
 					cal.set(Calendar.SECOND, 0);
+					cal.set(Calendar.AM_PM, Calendar.PM);
 					startDate = cal.getTime();
 					cal.setTime(exDate);
 					cal.add(Calendar.DATE, 1);

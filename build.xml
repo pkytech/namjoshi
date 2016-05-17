@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     17-May-2016 7:41:48 pm                                                        
+
+     project    
+     description
+                   
+     tphadke                                                                
+     ====================================================================== -->
+<project name="project" default="make">
+    <description>
+            Build file preparing tools directory
+    </description>
+	<property name="src.dir" value="${basedir}/src"/>
+	<property name="image.dir" value="${basedir}/images"/>
+	<property name="lib.dir" value="${basedir}/lib"/>
+	<property name="target.dir" value="${basedir}/target"/>
+	<property name="dist.dir" value="${target.dir}/dist"/>
+	<property name="dist.lib.dir" value="${dist.dir}/lib"/>
+	<property name="dist.images.dir" value="${dist.dir}/images"/>
+	<property name="classes.dir" value="${target.dir}/classes"/>
+
+	<path id="tool.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+    <!-- ================================= 
+          target: make              
+         ================================= -->
+    <target name="make" depends="clean,compile,jar" description="description">
+        <copy todir="${dist.lib.dir}">
+        	<fileset dir="${lib.dir}">
+        		<include name="*.jar"/>
+        	</fileset>
+        </copy>
+    	<copy todir="${dist.images.dir}">
+    		<fileset dir="${image.dir}" includes="*.*"/>
+    	</copy>
+    	<copy file="${basedir}/namjoshi.properties" todir="${dist.dir}"/>
+    	<copy file="${image.dir}/favicon.ico" todir="${dist.dir}"/>
+    	<mkdir dir="${dist.dir}/logs"/>
+    	<copy todir="${dist.dir}">
+    		<fileset dir="${basedir}">
+    			<include name="*.sh"/>
+    			<include name="*.bat"/>
+    		</fileset>
+    	</copy>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: clean                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="clean">
+    	<delete dir="${target.dir}" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: depends                      
+    - - - - - - - - - - - - - - - - - -->
+    <target name="compile">
+    	<mkdir dir="${classes.dir}"/>
+    	<javac classpathref="tool.classpath" srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false">
+    	</javac>
+    </target>
+	
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: depends                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="jar">
+    	<jar destfile="${dist.lib.dir}/NamjoshiClinic.jar">
+    		<fileset dir="${classes.dir}" includes="**/*.*"/>
+    		<fileset dir="${image.dir}">
+    			<include name="*.ico"/>
+    		</fileset>
+    		<manifest>
+	      		<attribute name="Main-Class"
+	            value="com.kytech.namjoshi.NamjoshiClinic"/>
+	    	</manifest>
+    	</jar>
+    </target>
+</project>

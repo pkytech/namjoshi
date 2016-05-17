@@ -38,10 +38,10 @@ public class NamjoshiClinic extends JFrame {
 	private DailyCollectionPanel dailyCollection;
 	private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	private final Action action = new DailyCollectionAction();
-	private final Action duesAction = new DailyCollectionAction(DailyCollectionTableModel.COLLECTION_TYPE);
+	private final Action duesAction = new DailyCollectionAction(DailyCollectionTableModel.DUES_TYPES);
 	public NamjoshiClinic() {
 		getContentPane().setBackground(Color.BLUE);
-		Util.setFrameIcon(this, "hospital-2-16.png", "hospital-2-32.png", "hospital-2-favicon.png");
+		Util.setFrameIcon(this, "hospital-2-16.png", "hospital-2-32.png");
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBackground(Color.BLUE);

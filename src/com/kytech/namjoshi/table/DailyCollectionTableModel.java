@@ -19,7 +19,7 @@ public class DailyCollectionTableModel extends AbstractTableModel {
 
 	private List<DailyCollection> rows = new ArrayList<DailyCollection>();
 	private static final String[] COLLECTION_COLUMN_NAMES = new String[]{"Patient Code", "First Name", "Last Name", "Fee Code", "Previous Balance", "Amount Payable", "Outstanding"};
-	private static final String[] DUES_COLUMN_NAME = new String[]{"Patient Code", "First Name", "Last Name", "Outstanding"};
+	private static final String[] DUES_COLUMN_NAME = new String[]{"First Name", "Last Name", "Outstanding"};
 	private String columnNames[];
 	public static final int COLLECTION_TYPE = 0;
 	public static final int DUES_TYPES = 1;

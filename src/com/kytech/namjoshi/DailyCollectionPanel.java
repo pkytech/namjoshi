@@ -106,11 +106,13 @@ public class DailyCollectionPanel extends JPanel {
 			Date now = new Date();
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(now);
-			cal.set(Calendar.HOUR, 15);
+			cal.set(Calendar.HOUR, 3);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.AM_PM, Calendar.PM);
 			int type = -1;
-			if (cal.before(now)) {
+			Date mid = cal.getTime();
+			if (mid.compareTo(now) < 0) {
 				type = DBUtil.EVENING;
 			} else {
 				type = DBUtil.MORNING;

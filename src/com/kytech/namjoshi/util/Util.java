@@ -432,7 +432,10 @@ public final class Util {
 		char parts[] = fee.toCharArray();
 		StringBuffer sbOut = new StringBuffer();
 		for (char code : parts) {
-			sbOut.append(FEE_MAP.get(String.valueOf(code)));
+			String cost = FEE_MAP.get(String.valueOf(code));
+			if (cost != null) {
+				sbOut.append(cost);
+			}
 		}
 		return Double.valueOf(sbOut.toString());
 	}
