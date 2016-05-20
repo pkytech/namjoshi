@@ -33,4 +33,6 @@ public class DailyWorkPanel extends JPanel {
 	public DailyWork getDailyWork() {
 		return this.dailyWork;
 	}
+	
+	
 }

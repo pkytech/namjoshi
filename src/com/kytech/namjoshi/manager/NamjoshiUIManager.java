@@ -322,9 +322,13 @@ public final class NamjoshiUIManager {
 		} else {
 			int option = showOptionMessage("Patient updated successfully, Patient code: " + patientCode + "\nPrint Prescription..?");
 			if (option == JOptionPane.OK_OPTION) {
-				Util.printPrescription(patientCode, name, prescription, feeCode);
+				try {
+					Util.printPrescription(patientCode, name, prescription, feeCode);
+				} catch(Exception e) {
+					e.printStackTrace(System.err);
+					showErrorMessage("Failed to print record. Please see log for more details");
+				}
 			}
-			
 		}
 		Prescription pre = new Prescription();
 		pre.setSymtoms(symtom);
@@ -367,10 +371,18 @@ public final class NamjoshiUIManager {
 			}
 			Util.uploadProfilePicture(patientCode, selectedFile);
 			Util.loadIconImage(patientCode, dailyWork.getProfilePictureLabel(), 200, 200);
-			showInformationMessage("Profile pciture updated successfully");
+			showInformationMessage("Profile picture updated successfully");
 		}
 	}
 	
+	public void newPatient() {
+		clearPatientData();
+		disablePatientCode();
+		selectDetailsTab();
+		DailyWork dailyWork = getDailyWork();
+		dailyWork.getSaveProfileButton().setEnabled(true);
+	}
+
 	public void uploadAttachments() {
 		DailyWork dailyWork = getDailyWork();
 		RecordSelector recSel = getRecordSelector();
@@ -399,7 +411,7 @@ public final class NamjoshiUIManager {
 			JPanel iconPanel = dailyWork.getAttachmentIconPanel();
 			JPanel attachmentPanel = dailyWork.getAttachmentImagePanel();
 			Util.uploadAttachment(iconPanel, attachmentPanel, patientCode, selectedFile);
-			showInformationMessage("Profile pciture updated successfully");
+			showInformationMessage("Atatchment uploaded successfully");
 		}
 	}
 	

@@ -269,17 +269,12 @@ public final class Util {
 					sourceLabel = (AttachmentLabel)o;
 					fullFileName = sourceLabel.getFullFileName();
 				}
-				
-				System.out.println("Image clicked");
-				
-				
-				
+				//System.out.println("Image clicked");
 				JLabel image = NamjoshiUIManager.getUIManager().getAttachmentImageLabel();
 				image.setBorder(BorderFactory.createLineBorder(Color.red));
 				loadImage(image, fullFileName);
 				
 				NamjoshiUIManager.getUIManager().repaintAttachmentImagePanel();
-				System.out.println("Image Added");
 			}
 		});
 	}
@@ -309,8 +304,9 @@ public final class Util {
 		((AbstractDocument) textField.getDocument()).setDocumentFilter(filter);
 	}
 
+	@SuppressWarnings("unused")
 	public static void printPrescription(String patientCode, String name,
-			String prescription, String feeCode) {
+			String prescription, String feeCode) throws Exception {
 		StringBuffer sbOut = new StringBuffer();
 		sbOut.append(patientCode).append(" - ").append(name).append("\n").append(PRINT_DEVIDER).append("\n");
 		sbOut.append(prescription).append("\t\t").append(feeCode).append("\n");
@@ -326,21 +322,15 @@ public final class Util {
 		if (fileDir.exists()) {
 			fileDir.mkdirs();
 		}
-		File billFile = new File(fileDir, "bills.txt");
+		File billFile = new File(fileDir, "bill.txt");
 		if (billFile.exists()) {
 			billFile.delete();
 		}
 		Process process;
-		try {
-			Files.write(Paths.get(billFile.toURI()), sbOut.toString().getBytes("utf-8"), StandardOpenOption.CREATE_NEW);
-			process = Runtime.getRuntime().exec(pathToBills+File.separator+billsPrint, null, new File(pathToBills));
-			int result = process.waitFor();
-			System.out.println("Result : " + result);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Files.write(Paths.get(billFile.toURI()), sbOut.toString().getBytes("utf-8"), StandardOpenOption.CREATE_NEW);
+		process = Runtime.getRuntime().exec(pathToBills+File.separator+billsPrint, null, new File(pathToBills));
+		int result = process.waitFor();
+		//System.out.println("Result : " + result);
 	}
 
 	public static void uploadProfilePicture(String patientCode,

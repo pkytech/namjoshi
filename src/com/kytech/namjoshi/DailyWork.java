@@ -209,6 +209,12 @@ public class DailyWork extends JPanel {
 		txtFeeCode.setFont(Util.getSystemFont());
 		adviceButton.add(txtFeeCode);
 		txtFeeCode.setColumns(10);
+		txtFeeCode.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NamjoshiUIManager.getUIManager().insertPrescription();
+			}
+		});
 		adviceButton.add(btnSave);
 		
 		JPanel uploadPanel = new JPanel();

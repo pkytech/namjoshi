@@ -32,13 +32,13 @@ import com.kytech.namjoshi.util.Util;
  *
  */
 public class NamjoshiClinic extends JFrame {
-	private final Action dailyWorkAction = new SwingAction(getContentPane());
-	private final ExitListner exitListner = new ExitListner(getContentPane());
+	private final Action dailyWorkAction = new SwingAction(this);
+	private final ExitListner exitListner = new ExitListner(this);
 	private DailyWorkPanel dailyWorkPanel;
 	private DailyCollectionPanel dailyCollection;
 	private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-	private final Action action = new DailyCollectionAction();
-	private final Action duesAction = new DailyCollectionAction(DailyCollectionTableModel.DUES_TYPES);
+	private final Action action = new DailyCollectionAction(this);
+	private final Action duesAction = new DailyCollectionAction(this, DailyCollectionTableModel.DUES_TYPES);
 	public NamjoshiClinic() {
 		getContentPane().setBackground(Color.BLUE);
 		Util.setFrameIcon(this, "hospital-2-16.png", "hospital-2-32.png");
@@ -63,6 +63,7 @@ public class NamjoshiClinic extends JFrame {
 		
 		JMenu mnReports = new JMenu("Reports");
 		mnReports.setBackground(Color.BLUE);
+		mnReports.setForeground(Color.WHITE);
 		mnReports.setFont(Util.getSystemFont());
 		menuBar.add(mnReports);
 		
@@ -111,20 +112,25 @@ public class NamjoshiClinic extends JFrame {
 	}
 	
 	private void removeDailyWork() {
-		JPanel blankPanel = new JPanel();
-		blankPanel.setBackground(Color.BLUE);
+		JPanel blankPanel = Util.getBasePanel();
+		getContentPane().removeAll();
 		getContentPane().add(blankPanel, BorderLayout.CENTER);
 		dailyWorkPanel.setVisible(false);
 		dailyWorkPanel = null;
+		getContentPane().repaint();
+		this.repaint();
+		repaint();
 		setVisible(true);
 	}
 
 	private void removeDailyCollection() {
-		JPanel blankPanel = new JPanel();
-		blankPanel.setBackground(Color.BLUE);
+		JPanel blankPanel = Util.getBasePanel();
+		getContentPane().removeAll();
 		getContentPane().add(blankPanel, BorderLayout.CENTER);
 		dailyCollection.setVisible(false);
 		dailyCollection = null;
+		getContentPane().repaint();
+		this.repaint();
 		setVisible(true);
 	}
 	
@@ -146,8 +152,8 @@ public class NamjoshiClinic extends JFrame {
 	}
 
 	private class SwingAction extends AbstractAction {
-		private Container parentContainer = null;
-		public SwingAction(Container container) {
+		private JFrame parentContainer = null;
+		public SwingAction(JFrame container) {
 			putValue(NAME, "Daily Work");
 			putValue(SHORT_DESCRIPTION, "This action opens new panel for daily work");
 			this.parentContainer = container;
@@ -159,11 +165,15 @@ public class NamjoshiClinic extends JFrame {
 			if (dailyWorkPanel == null) {
 				dailyWorkPanel = new DailyWorkPanel();
 			}
-			this.parentContainer.add(dailyWorkPanel, BorderLayout.CENTER);
+			parentContainer.getContentPane().removeAll();
+			parentContainer.getContentPane().add(dailyWorkPanel, BorderLayout.CENTER);
 			dailyWorkPanel.addExitListner(exitListner);
-			dailyWorkPanel.setVisible(true);
+			
 			dailyWorkPanel.repaint();
-			//getContentPane().repaint();
+			dailyWorkPanel.setVisible(true);
+			parentContainer.getContentPane().repaint();
+			parentContainer.repaint();
+			//parentContainer.pack();
 			setVisible(true);
 		}
 	}
@@ -173,10 +183,12 @@ public class NamjoshiClinic extends JFrame {
 	}
 	private class DailyCollectionAction extends AbstractAction {
 		private int type;
-		public DailyCollectionAction() {
-			this(DailyCollectionTableModel.COLLECTION_TYPE);
+		private JFrame parentContainer = null;
+		public DailyCollectionAction(JFrame parentContainer) {
+			this(parentContainer, DailyCollectionTableModel.COLLECTION_TYPE);
 		}
-		public DailyCollectionAction(int type) {
+		public DailyCollectionAction(JFrame parentContainer, int type) {
+			this.parentContainer = parentContainer;
 			this.type = type;
 			if (type == DailyCollectionTableModel.COLLECTION_TYPE) {
 				putValue(NAME, "Daily Report");
@@ -193,10 +205,14 @@ public class NamjoshiClinic extends JFrame {
 			if (dailyCollection == null) {
 				dailyCollection = new DailyCollectionPanel(type);
 			}
-			getContentPane().add(dailyCollection, BorderLayout.CENTER);
-			dailyCollection.setVisible(true);
+			parentContainer.getContentPane().removeAll();
+			parentContainer.getContentPane().add(dailyCollection, BorderLayout.CENTER);
 			dailyCollection.addExitListener(exitListner);
+			
 			dailyCollection.repaint();
+			dailyCollection.setVisible(true);
+			parentContainer.getContentPane().repaint();
+			parentContainer.repaint();
 			setVisible(true);
 		}
 	}

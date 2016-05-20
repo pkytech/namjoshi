@@ -78,9 +78,7 @@ public class RecordSelector extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NamjoshiUIManager.getUIManager().clearPatientData();
-				NamjoshiUIManager.getUIManager().disablePatientCode();
-				NamjoshiUIManager.getUIManager().selectDetailsTab();
+				NamjoshiUIManager.getUIManager().newPatient();
 			}
 		});
 		
