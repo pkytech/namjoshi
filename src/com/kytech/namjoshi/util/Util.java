@@ -51,8 +51,8 @@ import com.kytech.namjoshi.manager.NamjoshiUIManager;
  *
  */
 public final class Util {
-	private static final String baseDir = System.getProperty("user.dir");
-	private static final String imageDir = baseDir + "/images/";
+	public static final String BASE_DIR = System.getProperty("user.dir");
+	private static final String imageDir = BASE_DIR + "/images/";
 	private static final SimpleDateFormat sfd = new SimpleDateFormat("dd/MM/yyyy");
 	private static final String PRINT_DEVIDER = "-----------------------------------";
 	private static final Map<String, String> FEE_MAP = new HashMap<String, String>();
@@ -64,7 +64,7 @@ public final class Util {
 	}
 	
 	private static void initializeLogFile() {
-		File logDir = new File(baseDir, "logs");
+		File logDir = new File(BASE_DIR, "logs");
 		if (!logDir.exists()) {
 			logDir.mkdirs();
 		}

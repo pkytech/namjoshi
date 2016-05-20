@@ -23,7 +23,7 @@ public final class NamjoshiConfigurator {
 	private void loadProperties() {
 		configValues = new Properties();
 		try {
-			try (FileInputStream fin = new FileInputStream(new File("/Users/tphadke/work/workspaceHCL/NamjoshiClinic/namjoshi.properties"))) {
+			try (FileInputStream fin = new FileInputStream(new File(Util.BASE_DIR, "namjoshi.properties"))) {
 				configValues.load(fin);
 			}
 		} catch(Exception e) {
