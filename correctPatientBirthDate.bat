@@ -1,0 +1,1 @@
+java -cp "./lib/commons-dbcp2-2.1.1.jar;./lib/commons-logging-1.2.jar;./lib/commons-pool2-2.4.2.jar;./lib/jcalendar-1.4.jar;./lib/sqljdbc4.jar;./lib/NamjoshiClinic.jar" com.kytech.namjoshi.standalone.CorrectPatientBirthday
