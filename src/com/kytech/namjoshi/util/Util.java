@@ -288,7 +288,9 @@ public final class Util {
 	}
 	
 	public static Font getSystemFont() {
-		return new Font("Lucida Grande", Font.BOLD, 24);
+		String fontSize = NamjoshiConfigurator.getInstance().getKeyValue(NamjoshiConfigurator.SYSTEM_FORNT_SIZE);
+		int fontS = fontSize != null ? Integer.valueOf(fontSize) : 18;
+		return new Font("Lucida Grande", Font.BOLD, fontS);
 	}
 	
 	public static int findAgeOfPatient(Date patientDob) {

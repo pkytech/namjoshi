@@ -15,6 +15,7 @@ import com.kytech.namjoshi.util.DBUtil;
  * @author tphadke
  *
  */
+@SuppressWarnings("serial")
 public class DailyCollectionTableModel extends AbstractTableModel {
 
 	private List<DailyCollection> rows = new ArrayList<DailyCollection>();

@@ -18,6 +18,7 @@ import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.table.PatientDetailsTableModel;
 import com.kytech.namjoshi.util.Util;
 
+@SuppressWarnings("serial")
 public class PatientSearchPanel extends JPanel {
 	private JTextField txtPatientCode;
 	private JTextField txtFirstName;

@@ -9,6 +9,7 @@ import javax.swing.JLabel;
  * @author tphadke
  *
  */
+@SuppressWarnings("serial")
 public class AttachmentLabel extends JLabel {
 
 	private String fullFileName = null;

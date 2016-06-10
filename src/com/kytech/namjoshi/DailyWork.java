@@ -28,6 +28,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 import com.kytech.namjoshi.bo.Prescription;
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
@@ -35,8 +36,8 @@ import com.kytech.namjoshi.table.AdviceHistoryTableModel;
 import com.kytech.namjoshi.util.Util;
 import com.toedter.calendar.JDateChooser;
 
+@SuppressWarnings("serial")
 public class DailyWork extends JPanel {
-	private JTextField txtCode;
 	private JTextField firstName;
 	private JTextField txtMiddle;
 	private JTextField txtLast;
@@ -98,8 +99,12 @@ public class DailyWork extends JPanel {
 		});
 		
 		historyTable.setFillsViewportHeight(true);
-		historyTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-		historyTable.getColumnModel().getColumn(4).setPreferredWidth(30);
+		int widths[] = historyTableModel.getColumnWidths();
+		TableColumnModel columnMode = historyTable.getColumnModel();
+		int column = 0;
+		for (int width : widths) {
+			columnMode.getColumn(column++).setPreferredWidth(width);
+		}
 		
 		JPanel adviceMaster = new JPanel();
 		adviceMaster.setBackground(Color.BLUE);

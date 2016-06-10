@@ -5,7 +5,6 @@ package com.kytech.namjoshi;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GraphicsDevice;
@@ -31,9 +30,10 @@ import com.kytech.namjoshi.util.Util;
  * @author tphadke
  *
  */
+@SuppressWarnings("serial")
 public class NamjoshiClinic extends JFrame {
 	private final Action dailyWorkAction = new SwingAction(this);
-	private final ExitListner exitListner = new ExitListner(this);
+	private final ExitListner exitListner = new ExitListner();
 	private DailyWorkPanel dailyWorkPanel;
 	private DailyCollectionPanel dailyCollection;
 	private static final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -107,6 +107,7 @@ public class NamjoshiClinic extends JFrame {
 	/**
 	 * @param args
 	 */
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		NamjoshiClinic clinic = new NamjoshiClinic();
 	}
@@ -135,9 +136,8 @@ public class NamjoshiClinic extends JFrame {
 	}
 	
 	private class ExitListner implements ActionListener {
-		private Container parentContainer = null;
-		public ExitListner(Container container) {
-			this.parentContainer = container;
+		
+		public ExitListner() {
 		}
 		
 		@Override
@@ -168,6 +168,7 @@ public class NamjoshiClinic extends JFrame {
 			parentContainer.getContentPane().removeAll();
 			parentContainer.getContentPane().add(dailyWorkPanel, BorderLayout.CENTER);
 			dailyWorkPanel.addExitListner(exitListner);
+			dailyWorkPanel.focusPatientCode();
 			
 			dailyWorkPanel.repaint();
 			dailyWorkPanel.setVisible(true);
@@ -181,6 +182,7 @@ public class NamjoshiClinic extends JFrame {
 	public DailyWorkPanel getDailyPanel() {
 		return this.dailyWorkPanel;
 	}
+
 	private class DailyCollectionAction extends AbstractAction {
 		private int type;
 		private JFrame parentContainer = null;

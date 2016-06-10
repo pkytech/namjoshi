@@ -72,8 +72,13 @@ public final class DBUtil {
 			Class.forName(driverName);
 			
 			Properties prop = new Properties();
-			prop.put("user", userName);
-			prop.put("password", password);
+			if (!(userName == null || userName.trim().equals(""))) {
+				prop.put("user", userName);
+			}
+			if (!(password == null || password.trim().equals(""))) {
+				prop.put("password", password);	
+			}
+			
 			prop.put("initialSize", "4");
 			
 			ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(jdbcUrl, prop);

@@ -9,6 +9,7 @@ import javax.swing.table.AbstractTableModel;
 import com.kytech.namjoshi.bo.Prescription;
 import com.kytech.namjoshi.util.Util;
 
+@SuppressWarnings("serial")
 public class AdviceHistoryTableModel extends AbstractTableModel {
 
 	private List<Prescription> rows = new ArrayList<Prescription>();
@@ -27,6 +28,7 @@ public class AdviceHistoryTableModel extends AbstractTableModel {
 	}
 
 	private static final String[] columnNames = new String[]{"Date", "Symtoms", "Prescription", "Advice", "Fee"};
+	private static final int[] columnWidths = new int[]{25, 330, 330, 70, 20};
 	@Override
 	public int getRowCount() {
 		return rows != null ? rows.size() : 0;
@@ -77,5 +79,7 @@ public class AdviceHistoryTableModel extends AbstractTableModel {
 		return this.rows;
 	}
 	
-	
+	public int[] getColumnWidths() {
+		return columnWidths;
+	}
 }

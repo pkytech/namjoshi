@@ -90,7 +90,9 @@ public final class NamjoshiUIManager {
 		dailyWork.setMobile(pat.getMobileNumber());
 		dailyWork.setReference(pat.getDrReference());
 		if (pat.getBirthDate() != null) {
-			dailyWork.setAge(String.valueOf(Util.findAgeOfPatient(pat.getBirthDate())));
+			String age = String.valueOf(Util.findAgeOfPatient(pat.getBirthDate()));
+			dailyWork.setAge(age);
+			recSel.setPatientAge(age);
 		}
 		Date birthDate = pat.getBirthDate();
 		if (birthDate != null) {
@@ -135,6 +137,7 @@ public final class NamjoshiUIManager {
 		dailyWork.setLastName("");
 		dailyWork.setAddress("");
 		dailyWork.setAge("");
+		recSel.setPatientAge("");
 		dailyWork.setTelephone("");
 		dailyWork.setMobile("");
 		dailyWork.setReference("");
@@ -284,7 +287,9 @@ public final class NamjoshiUIManager {
 			patientCode = String.valueOf(patientCodeLong);
 			recSel.setPatientCode(patientCode);
 			recSel.setPatientName(firstName + " " + lastName);
-			dailyWork.setAge(String.valueOf(Util.findAgeOfPatient(dob)));
+			String age = String.valueOf(Util.findAgeOfPatient(dob));
+			dailyWork.setAge(age);
+			recSel.setPatientAge(age);
 			showInformationMessage("Patient record created. New patient number is: " + patientCode);
 		} else {
 			DBUtil.updatePatient(patientCode, firstName, middleName, lastName, address, telephone, mobile, reference, dob);
@@ -306,12 +311,15 @@ public final class NamjoshiUIManager {
 		String feeCode = dailyWork.getFeeCode();
 		if (symtom == null || symtom.trim().length() == 0) {
 			showErrorMessage("Please enter symtoms");
+			return;
 		}
 		if (prescription == null || prescription.trim().length() == 0) {
 			showErrorMessage("Please enter Precription");
+			return;
 		}
 		if (feeCode == null || feeCode.trim().length() == 0) {
 			showErrorMessage("Please enter fee code");
+			return;
 		}
 
 		boolean success = DBUtil.insertPrescription(Long.parseLong(patientCode), symtom, prescription, advice, feeCode);
@@ -327,6 +335,7 @@ public final class NamjoshiUIManager {
 				} catch(Exception e) {
 					e.printStackTrace(System.err);
 					showErrorMessage("Failed to print record. Please see log for more details");
+					return;
 				}
 			}
 		}
@@ -342,6 +351,9 @@ public final class NamjoshiUIManager {
 		dailyWork.setPrescription("");
 		dailyWork.setAdvice("");
 		dailyWork.setFeeCode("");
+		
+		//Clear Patient Data
+		clearPatientData();
 	}
 	
 	public void chooseProfilePicture() {

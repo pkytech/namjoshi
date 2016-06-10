@@ -46,6 +46,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+@SuppressWarnings("serial")
 public class FileChooser extends JPanel implements ActionListener {
 	static private final String newline = "\n";
 	JButton openButton, saveButton;

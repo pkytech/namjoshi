@@ -14,6 +14,7 @@ public final class NamjoshiConfigurator {
 	public static final String PATIENT_PROFILE_PIC_DIR = "namjoshi.profilePic.dir";
 	public static final String PATIENT_ATTACH_DIR = "namjoshi.attachment.dir";
 	public static final String  FEE_CODE = "namjoshi.fee.code";
+	public static final String  SYSTEM_FORNT_SIZE = "namjoshi.font.size";
 	private static NamjoshiConfigurator configurator = null;
 	private Properties configValues = null;
 	private NamjoshiConfigurator() {

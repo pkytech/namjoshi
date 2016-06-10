@@ -39,6 +39,7 @@ import com.toedter.calendar.JDateChooser;
  * @author tphadke
  *
  */
+@SuppressWarnings("serial")
 public class DailyCollectionPanel extends JPanel {
 	private JTable reportTable;
 	JComboBox<String> timeFrame;

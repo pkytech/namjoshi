@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class DailyWorkPanel extends JPanel {
 	private RecordSelector recordSelector = null;
 	private DailyWork dailyWork = null;
@@ -34,5 +35,7 @@ public class DailyWorkPanel extends JPanel {
 		return this.dailyWork;
 	}
 	
-	
+	public void focusPatientCode() {
+		recordSelector.focusPatientCode();
+	}
 }

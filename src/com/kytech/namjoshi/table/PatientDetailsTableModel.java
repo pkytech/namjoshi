@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.kytech.namjoshi.bo.Patient;
 
+@SuppressWarnings("serial")
 public class PatientDetailsTableModel extends AbstractTableModel {
 	private static final String[] columnNames = new String[]{"Code", "First Name", "Middle Name", "Last Name"};
 	private List<Patient> patients = new ArrayList<Patient>(); 
