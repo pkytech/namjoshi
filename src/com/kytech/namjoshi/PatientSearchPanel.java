@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 import com.kytech.namjoshi.manager.NamjoshiUIManager;
 import com.kytech.namjoshi.table.PatientDetailsTableModel;
@@ -106,12 +107,18 @@ public class PatientSearchPanel extends JPanel {
 		JScrollPane scrollPane = new JScrollPane();
 		tablePanel.add(scrollPane);
 		
-		searchRecordTable = new JTable(patientSearchResult );
+		searchRecordTable = new JTable(patientSearchResult);
 		searchRecordTable.setFont(Util.getSystemFont());
 		searchRecordTable.setRowHeight(25);
 		scrollPane.setViewportView(searchRecordTable);
 		JTableHeader header = searchRecordTable.getTableHeader();
 		header.setFont(Util.getSystemFont());
+		TableColumnModel columnModel = searchRecordTable.getColumnModel();
+		int column = 0;
+		int widths[] = patientSearchResult.getColumnWidths();
+		for (int width : widths) {
+			columnModel.getColumn(column++).setPreferredWidth(width);
+		}
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setBackground(Color.BLUE);

@@ -9,7 +9,8 @@ import com.kytech.namjoshi.bo.Patient;
 
 @SuppressWarnings("serial")
 public class PatientDetailsTableModel extends AbstractTableModel {
-	private static final String[] columnNames = new String[]{"Code", "First Name", "Middle Name", "Last Name"};
+	private static final String[] columnNames = new String[]{"Code", "First Name", "M. Name", "Last Name"};
+	private static final int[] columnWidths = new int[]{80, 280, 100, 280};
 	private List<Patient> patients = new ArrayList<Patient>(); 
 	@Override
 	public int getRowCount() {
@@ -64,5 +65,9 @@ public class PatientDetailsTableModel extends AbstractTableModel {
 	 */
 	public void setPatients(List<Patient> patients) {
 		this.patients = patients;
+	}
+	
+	public int[] getColumnWidths() {
+		return columnWidths;
 	}
 }

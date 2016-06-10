@@ -46,6 +46,7 @@ public class RecordSelector extends JPanel {
 				Window parentWindow = SwingUtilities.windowForComponent(txtPatientcodeselector);
 				final JDialog dialog = new JDialog(parentWindow);
 				dialog.setLocationRelativeTo(btnSearch);
+				dialog.setLocation(100, 100);
 				dialog.setSize(800, 550);
 				dialog.getContentPane().add(searchPanel);
 				searchPanel.addExitListner(new ActionListener() {

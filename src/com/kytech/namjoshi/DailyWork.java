@@ -571,4 +571,8 @@ public class DailyWork extends JPanel {
 	public JLabel getAttachmentImageLabel() {
 		return this.lblAttachmentImageLabel;
 	}
+	
+	public void focusFirstName() {
+		firstName.requestFocusInWindow();
+	}
 }

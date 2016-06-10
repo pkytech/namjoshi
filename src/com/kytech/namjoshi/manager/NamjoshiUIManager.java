@@ -164,6 +164,7 @@ public final class NamjoshiUIManager {
 		disableUploadProfilePicture();
 		disableSaveProfileButton();
 		resetAttachmentImageFound();
+		recSel.focusPatientCode();
 	}
 
 	public void disablePatientCode() {
@@ -392,6 +393,7 @@ public final class NamjoshiUIManager {
 		disablePatientCode();
 		selectDetailsTab();
 		DailyWork dailyWork = getDailyWork();
+		dailyWork.focusFirstName();
 		dailyWork.getSaveProfileButton().setEnabled(true);
 	}
 
