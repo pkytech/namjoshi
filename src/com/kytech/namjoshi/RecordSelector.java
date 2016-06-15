@@ -145,7 +145,7 @@ public class RecordSelector extends JPanel {
 		txtPatientName.setEditable(false);
 		txtPatientName.setFont(Util.getSystemFont());
 		panel.add(txtPatientName);
-		txtPatientName.setColumns(15);
+		txtPatientName.setColumns(25);
 		
 		JLabel lblDues = new JLabel("Dues");
 		lblDues.setFont(Util.getSystemFont());

@@ -69,7 +69,9 @@ public final class NamjoshiUIManager {
 		List<Prescription> pre = DBUtil.loadPrescription(patientNo);
 		
 		//set Patient details
-		String patientFullName = pat.getFirstName() + " " + pat.getMiddleName() + " " + pat.getLastName();
+		String middleName = pat.getMiddleName();
+		middleName = middleName == null ? "" : middleName;
+		String patientFullName = pat.getFirstName() + " " + middleName + " " + pat.getLastName();
 		NamjoshiClinic clinic = null;
 		if (parentFrame instanceof NamjoshiClinic) {
 			clinic = (NamjoshiClinic)parentFrame;

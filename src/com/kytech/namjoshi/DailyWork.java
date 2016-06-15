@@ -122,7 +122,7 @@ public class DailyWork extends JPanel {
 		adviceMaster.add(advice, BorderLayout.CENTER);
 		adviceMaster.add(adviceButton, BorderLayout.SOUTH);
 		GridBagLayout gbl_advice = new GridBagLayout();
-		gbl_advice.columnWidths = new int[]{170, 1000, 0};
+		gbl_advice.columnWidths = new int[] {170, 800, 0};
 		gbl_advice.rowHeights = new int[]{100, 100, 100, 0};
 		gbl_advice.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		gbl_advice.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
