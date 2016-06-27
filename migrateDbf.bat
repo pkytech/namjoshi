@@ -1,0 +1,1 @@
+java -cp "./lib/dans-dbf-lib-1.0.0-beta-10.jar;./lib/commons-dbcp2-2.1.1.jar;./lib/commons-logging-1.2.jar;./lib/commons-pool2-2.4.2.jar;./lib/jcalendar-1.4.jar;./lib/sqljdbc4.jar;./lib/NamjoshiClinic.jar" com.kytech.migrate.dbf.MigrateDbf %1
