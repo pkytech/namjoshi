@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1">
+  <grid id="5cfcd" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="10" y="10" width="1087" height="489"/>
+    </constraints>
+    <properties>
+      <name value="null.contentPane"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <grid id="44ec4" class="com.kytech.namjoshi.DailyCollectionPanel" custom-create="true" layout-manager="BorderLayout" hgap="10" vgap="10">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="bcda1" layout-manager="GridLayoutManager" row-count="1" column-count="5" same-size-horizontally="true" same-size-vertically="true" hgap="8" vgap="8">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints border-constraint="North"/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="ade51" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="18" style="1"/>
+                  <text value="Date"/>
+                </properties>
+              </component>
+              <component id="5ef43" class="com.toedter.calendar.JDateChooser">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <dateFormatString value="dd/MM/yyyy"/>
+                  <font size="18" style="1"/>
+                  <name value="JDateChooser"/>
+                </properties>
+              </component>
+              <component id="7cb83" class="javax.swing.JComboBox">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <actionCommand value="comboBoxChanged"/>
+                  <font size="18" style="1"/>
+                  <model>
+                    <item value="---- Select ----"/>
+                    <item value="Morning"/>
+                    <item value="Evening"/>
+                    <item value="Both"/>
+                  </model>
+                </properties>
+              </component>
+              <component id="2a1e" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="18" style="1"/>
+                  <text value="Search"/>
+                </properties>
+              </component>
+              <component id="8d0fa" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="18" style="1"/>
+                  <text value="Exit"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <scrollpane id="16e1e">
+            <constraints border-constraint="Center"/>
+            <properties>
+              <horizontalScrollBarPolicy value="32"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="e440a" class="javax.swing.JTable">
+                <constraints/>
+                <properties>
+                  <fillsViewportHeight value="true"/>
+                  <font size="18" style="1"/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

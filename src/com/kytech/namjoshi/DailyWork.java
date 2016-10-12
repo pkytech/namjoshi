@@ -11,19 +11,12 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -77,8 +70,7 @@ public class DailyWork extends JPanel {
 		historyPanel.setBackground(Color.BLUE);
 		tabbedPane.addTab("History", null, historyPanel, null);
 		historyPanel.setLayout(new BorderLayout(0, 5));
-		
-		historyTable = new JTable(historyTableModel);
+		historyTable = createJTable();
 		historyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane adviceTablescrollPane = new JScrollPane(historyTable);
 		historyTable.setFont(Util.getSystemFont());
@@ -415,6 +407,67 @@ public class DailyWork extends JPanel {
 				NamjoshiUIManager.getUIManager().saveOrUpdatePatientDetails();
 			}
 		});
+	}
+
+	private JTable createJTable() {
+		JTable prescriptionTable = new JTable(historyTableModel) {
+			@Override
+			public String getToolTipText(MouseEvent event) {
+				java.awt.Point p = event.getPoint();
+				int rowIndex = rowAtPoint(p);
+				int colIndex = columnAtPoint(p);
+				if (colIndex == 1 || colIndex == 2 || colIndex == 3) {
+					if (rowIndex > -1) {
+						String cellText = String.valueOf(getValueAt(rowIndex, colIndex));
+						cellText = cellText.replaceAll("(\r\n|\n)", "<br/>");
+						String toolTip = "<html><body><p><font size=\"5\">" + cellText + "</font></p></body></html>";
+						return  toolTip;
+					}
+				}
+				return super.getToolTipText(event);
+			}
+		};
+		JPopupMenu popup = new JPopupMenu();
+		JMenuItem exitItem = new JMenuItem("Exit");
+		exitItem.setFont(Util.getSystemFont());
+		exitItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				popup.setVisible(false);
+				popup.removeAll();
+			}
+		});
+		prescriptionTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent me) {
+				int row = prescriptionTable.rowAtPoint(me.getPoint());
+				int column = prescriptionTable.columnAtPoint(me.getPoint());
+				if (me.getButton() == MouseEvent.BUTTON3 && column == 2 && row > -1) {
+					String value = String.valueOf(prescriptionTable.getValueAt(row, column));
+
+					if (value != null && value.trim().length() > 0) {
+						String values[] = value.split("(\r\n|\n)");
+						popup.removeAll();
+						for (String val : values) {
+							JMenuItem item = new JMenuItem("Append.. "+ val);
+							item.addActionListener(new ActionListener() {
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									NamjoshiUIManager.getUIManager().appendPrescription(val);
+								}
+							});
+							item.setFont(Util.getSystemFont());
+							popup.add(item);
+						}
+						popup.add(exitItem);
+						popup.setVisible(true);
+						popup.show(prescriptionTable, me.getX(), me.getY());
+					}
+				}
+			}
+		});
+
+		return prescriptionTable;
 	}
 
 	public void setFirstName(String name) {

@@ -1,16 +1,18 @@
 package com.kytech.namjoshi.table;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.kytech.namjoshi.bo.Patient;
+import com.kytech.namjoshi.util.Util;
 
 @SuppressWarnings("serial")
 public class PatientDetailsTableModel extends AbstractTableModel {
-	private static final String[] columnNames = new String[]{"Code", "First Name", "M. Name", "Last Name"};
-	private static final int[] columnWidths = new int[]{80, 280, 100, 280};
+	private static final String[] columnNames = new String[]{"Code", "First Name", "M. Name", "Last Name", "DOB"};
+	private static final int[] columnWidths = new int[]{70, 250, 80, 250, 110};
 	private List<Patient> patients = new ArrayList<Patient>(); 
 	@Override
 	public int getRowCount() {
@@ -41,6 +43,14 @@ public class PatientDetailsTableModel extends AbstractTableModel {
 				break;
 			case 3:
 				cellValue = patient.getLastName();
+				break;
+			case 4:
+				Date dob = patient.getBirthDate();
+				if (dob != null) {
+					cellValue = Util.formatDate(dob);
+				} else {
+					cellValue = "";
+				}
 				break;
 			default:
 				cellValue = "";

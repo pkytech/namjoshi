@@ -108,7 +108,7 @@ public class NamjoshiClinic extends JFrame {
 	 * @param args
 	 */
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		NamjoshiClinic clinic = new NamjoshiClinic();
 	}
 	

@@ -62,7 +62,6 @@ public class RecordSelector extends JPanel {
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(false);
 						NamjoshiUIManager.getUIManager().loadSearchedPatient();
-						NamjoshiUIManager.getUIManager().resetSearchPanel();
 						dialog.dispose();
 					}
 				});

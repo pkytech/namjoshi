@@ -178,7 +178,12 @@ public final class NamjoshiUIManager {
 		RecordSelector recSel = dailyWorkPanel.getRecordSelector();
 		recSel.disablePatientCode();
 	}
-	
+
+	public void appendPrescription(String pre) {
+		DailyWork dailyWork = getDailyWork();
+		String existingPre = dailyWork.getPrescription();
+		dailyWork.setPrescription(existingPre + System.lineSeparator() + pre);
+	}
 	public void loadPrescription(Prescription pre) {
 		DailyWork dailyWork = getDailyWork();
 		dailyWork.setSymtom(pre.getSymtoms());
